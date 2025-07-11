@@ -328,7 +328,7 @@ export const Users = () => {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              User Management
+              User Management !!
             </h1>
             <p className="mt-2 text-sm text-gray-600">
               {hasRole("admin")

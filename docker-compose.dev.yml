@@ -4,18 +4,44 @@ x-build-dns: &build-dns
     - 8.8.8.8
     - 8.8.4.4
 services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sinuser
+      POSTGRES_PASSWORD: sinpassword
+      POSTGRES_DB: sindb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data_dev:/var/lib/postgresql/data
+    networks:
+      - sinproject
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sinuser -d sindb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api:
     build:
       context: ./Server
       target: development
+      dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
-      - ./server/.env
+      - ./Server/.env
     volumes:
-      - ./server:/app
+      - ./Server:/app
       - /app/node_modules
     networks:
       - sinproject
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npm ci --include=dev && npm run dev"
     dns:
       - 8.8.8.8
       - 8.8.4.4
@@ -24,8 +50,7 @@ services:
     build:
       context: ./Client
       target: development
-      args:
-        - VITE_API_URL=https://api.auth.localhost
+      dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
       - ./Client/.env
@@ -34,9 +59,10 @@ services:
       - /app/node_modules
     networks:
       - sinproject
-    command: npm run dev -- --host
     depends_on:
       - api
+    ports:
+      - "5173:5173"
 
   caddy:
     image: caddy:2-alpine
@@ -55,6 +81,7 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  db_data_dev:
 networks:
   sinproject:
     driver: bridge
