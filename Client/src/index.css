@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/* Custom styles */
+@layer utilities {
+  .neon-text {
+    text-shadow: 0 0 5px #66ccff, 0 0 10px #66ccff, 0 0 20px #66ccff,
+      0 0 40px #66ccff;
+  }
+
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Base styles with clean light theme */
+body {
+  font-family: "Comfortaa", sans-serif;
+  font-weight: 300;
+  background-color: #ffffff; /* Pure white background */
+  color: #1f2937; /* gray-800 for better readability */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Clean light theme with subtle tones */
+.dark body {
+  background-color: #ffffff; /* Override to keep light */
+  color: #1f2937; /* Keep light theme colors */
+}
+
+/* Custom color variables for consistent light theming */
+:root {
+  color-scheme: light;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --text-primary: #1f2937;
+  --text-secondary: #374151;
+  --text-tertiary: #6b7280;
+  --border-color: #e5e7eb;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #06b6d4;
+}
+
+.dark {
+  color-scheme: light; /* Force light theme */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --text-primary: #1f2937;
+  --text-secondary: #374151;
+  --text-tertiary: #6b7280;
+  --border-color: #e5e7eb;
+  --accent-primary: #3b82f6;
+  --accent-secondary: #06b6d4;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.title {
+  font-family: "Comfortaa", sans-serif;
+  font-weight: 700; /* Bold for headlines and titles */
+}
