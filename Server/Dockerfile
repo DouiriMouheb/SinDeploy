@@ -16,18 +16,10 @@ RUN npm install -g nodemon
 # Copy source code
 COPY . .
 
-# Copy and make startup script executable
-COPY start-dev.sh ./
-RUN chmod +x start-dev.sh
+# Run migrations and seed data in development
+# RUN npm run migrate && npm run seed
 
-# Verify nodemon is installed
-RUN which nodemon && nodemon --version
-
-# Expose port
-EXPOSE 5000
-
-# Start development server using the script
-CMD ["./start-dev.sh"]
+CMD ["npm", "run", "dev"]
 
 # Production Stage
 FROM node:22.2-bullseye AS production
@@ -41,11 +33,8 @@ COPY package*.json ./
 # Install dependencies (production only)
 RUN npm ci --only=production
 
-# Copy source code
+# Copy source code directly (no build step needed for JS)
 COPY . .
-
-# Expose port
-EXPOSE 5000
 
 # Start production server
 CMD ["npm", "start"]
