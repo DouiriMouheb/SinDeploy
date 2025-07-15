@@ -67,7 +67,7 @@ const schemas = {
     workLocationType: Joi.string()
       .valid("organization", "customer", "home")
       .required(),
-    taskName: Joi.string().trim().min(2).max(300).required(),
+  
     date: Joi.date().required(),
     startTime: Joi.date().required().messages({
       "date.base": "Start time must be a valid date",
@@ -87,7 +87,7 @@ const schemas = {
     processId: commonFields.uuid,
     activityId: commonFields.uuid,
     workLocationType: Joi.string().valid("organization", "customer", "home"),
-    taskName: Joi.string().trim().min(2).max(300),
+   
     date: Joi.date(),
     startTime: Joi.date(),
     endTime: Joi.date(),

@@ -38,7 +38,7 @@ export const userService = {
   // Get single user by ID
   async getUser(id) {
     try {
-      console.log(`Fetching user with ID: ${id}`);
+   
       const response = await apiClient.get(`/admin/users/${id}`);
 
       if (response.success) {

@@ -234,7 +234,7 @@ export const Customers = () => {
         {/* Header - responsive layout */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+             <h1 className="text-3xl font-bold text-gray-900">
               Customer Management
             </h1>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">

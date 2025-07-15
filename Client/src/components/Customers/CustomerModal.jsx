@@ -73,8 +73,7 @@ export const CustomerModal = ({
       }
 
       const data = await response.json();
-      console.log("Organizations in CustomerModal:", data);
-
+      
       if (data.success && Array.isArray(data.data)) {
         setOrganizations(data.data); // Correctly set the organizations array
       } else {
@@ -142,7 +141,7 @@ export const CustomerModal = ({
 
       if (mode === "create") {
         const response = await customerService.createCustomer(cleanedData);
-        console.log("Customer created response:", response);
+       
         responseData = response.data ? response.data.customer : response;
         showToast.success("Customer created successfully");
       } else {
@@ -150,12 +149,12 @@ export const CustomerModal = ({
           customer.id,
           cleanedData
         );
-        console.log("Customer updated response:", response);
+       
         responseData = response.data ? response.data.customer : response;
         showToast.success("Customer updated successfully");
       }
 
-      console.log("Passing customer data back to parent:", responseData);
+      
 
       // Pass the created/updated customer back to the parent component
       onSuccess(responseData);

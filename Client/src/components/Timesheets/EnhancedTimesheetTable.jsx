@@ -1,5 +1,4 @@
-// src/components/Timesheets/EnhancedTimeSheetTable.jsx - Enhanced time entries table with search, pagination, and column reordering
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import TimesheetCard from "./TimesheetCard";
 import {
   Edit,
@@ -10,19 +9,10 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  ArrowUpDown,
-  X,
-  Briefcase,
-  MonitorCheck,
-  Building,
-  User,
-  MapPin,
-  ChevronDown,
-  ChevronUp,
+
 } from "lucide-react";
 import { Button } from "../common/Button";
-import { Input } from "../common/Input";
-import { ProfilePicture } from "../common/ProfilePicture";
+
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -174,22 +164,10 @@ export const EnhancedTimeSheetTable = ({
   currentDate = new Date(),
   onDateChange = () => {},
 }) => {
-  // Table/Card state - use shared currentDate prop
-  // const [selectedDate, setSelectedDate] = useState(() => {
-  //   const today = new Date();
-  //   today.setHours(0, 0, 0, 0);
-  //   return today;
-  // });
-  // Remove sortConfig, always sort by startTime ascending (chronological)
-  // const [sortConfig, setSortConfig] = useState({
-  //   key: "startTime",
-  //   direction: "asc",
-  // });
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10); // Fixed page size to 10
-  // viewMode and setViewMode are now controlled by parent (TimeSheetList)
-
-  // Use fixed columns - no customization
+ 
   const columns = DEFAULT_COLUMNS;
 
   // Helper functions
@@ -215,16 +193,7 @@ export const EnhancedTimeSheetTable = ({
     return customer ? customer.name : "Unknown Customer";
   };
 
-  // Get nested property value
-  const getNestedValue = (obj, path) => {
-    return path
-      .split(".")
-      .reduce(
-        (current, prop) =>
-          current && current[prop] !== undefined ? current[prop] : null,
-        obj
-      );
-  };
+
 
   // Filter and search entries
   const filteredEntries = useMemo(() => {
@@ -255,26 +224,6 @@ export const EnhancedTimeSheetTable = ({
 
   // Pagination info
   const totalPages = Math.ceil(sortedEntries.length / pageSize);
-  const startEntry = (currentPage - 1) * pageSize + 1;
-  const endEntry = Math.min(currentPage * pageSize, sortedEntries.length);
-
-  // Handlers
-  // Sorting is always by startTime ascending, so handleSort is not needed
-  // const handleSort = (key) => {
-  //   setSortConfig((prev) => ({
-  //     key,
-  //     direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
-  //   }));
-  // };
-
-  const resetFilters = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    onDateChange(today);
-    setCurrentPage(1);
-  };
-
-  const visibleColumns = columns.filter((col) => col.visible);
 
   // Removed toggleExpanded function
 

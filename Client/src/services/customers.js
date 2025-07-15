@@ -58,7 +58,7 @@ export const customerService = {
   // Create new customer (admin only)
   async createCustomer(customerData) {
     try {
-      console.log("Creating customer with data:", customerData);
+    
       const response = await apiClient.post("/customers", customerData);
       return {
         success: true,
@@ -73,7 +73,7 @@ export const customerService = {
   // Update customer (admin only)
   async updateCustomer(customerId, customerData) {
     try {
-      console.log("Updating customer with data:", customerData);
+   
       const response = await apiClient.put(
         `/customers/${customerId}`,
         customerData

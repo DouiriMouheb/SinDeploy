@@ -1,54 +1,91 @@
-// src/components/Process/ProcessModal.jsx - Process create/edit modal
+// src/components/Process/ActivityModal.jsx - Activity create/edit modal
 import React, { useState, useEffect } from "react";
-import { X, Briefcase, FileText } from "lucide-react";
+import { X, ListChecks, FileText } from "lucide-react";
 import { Modal } from "../common/Modal";
 import { Input } from "../common/Input";
 import { Button } from "../common/Button";
 import { processService } from "../../services/processes";
 import { showToast } from "../../utils/toast";
 
-export const ProcessModal = ({
+export const ActivityModal = ({
   isOpen,
   onClose,
-  process,
+  activity = null,
   mode = "create",
+  processId,
   onSuccess,
 }) => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
   });
-  const [loading, setLoading] = useState(false);
+
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      if (mode === "edit" && process) {
-        setFormData({
-          name: process.name || "",
-          description: process.description || "",
-        });
-      } else {
-        setFormData({
-          name: "",
-          description: "",
-        });
-      }
-      setErrors({});
+    if (activity) {
+      setFormData({
+        name: activity.name || "",
+        description: activity.description || "",
+      });
+    } else {
+      setFormData({
+        name: "",
+        description: "",
+      });
     }
-  }, [isOpen, process, mode]);
+    setErrors({});
+  }, [activity, isOpen]);
 
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "Process name is required";
+      newErrors.name = "Activity name is required";
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = "Process name must be at least 2 characters";
+      newErrors.name = "Activity name must be at least 2 characters";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    const activityData = {
+      ...formData,
+      name: formData.name.trim(),
+      description: formData.description.trim(),
+    };
+
+    setLoading(true);
+    try {
+      let result;
+      if (mode === "create") {
+        result = await processService.createActivity(processId, activityData);
+        showToast.success("Activity created successfully");
+      } else {
+        result = await processService.updateActivity(processId, activity.id, activityData);
+        showToast.success("Activity updated successfully");
+      }
+
+      if (result && result.success) {
+        onSuccess && onSuccess(result.data);
+      }
+
+      onClose();
+    } catch (error) {
+      console.error(`Error ${mode === "create" ? "creating" : "updating"} activity:`, error);
+      showToast.error(`Failed to ${mode === "create" ? "create" : "update"} activity: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (field, value) => {
@@ -72,40 +109,15 @@ export const ProcessModal = ({
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    setLoading(true);
-    try {
-      let result;
-      if (mode === "create") {
-        result = await processService.create(formData);
-        showToast.success("Process created successfully");
-      } else {
-        result = await processService.update(process.id, formData);
-        showToast.success("Process updated successfully");
-      }
-
-      // Pass the newly created or updated process data to the parent component
-      if (result && result.success && result.data) {
-        onSuccess && onSuccess(result.data);
-      }
-
-      onClose();
-    } catch (error) {
-      showToast.error(`Failed to ${mode} process: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="md">
       <div className="flex items-center justify-between p-6 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-          <Briefcase className="h-5 w-5 mr-2 text-blue-500" />
-          {mode === "create" ? "Add New Process" : "Edit Process"}
-        </h2>
+        <h3 className="text-lg font-medium text-gray-900 flex items-center">
+          <ListChecks className="h-5 w-5 mr-2 text-blue-500" />
+          {mode === "create" ? "Add New Activity" : "Edit Activity"}
+        </h3>
         <button
           onClick={handleClose}
           className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -118,15 +130,15 @@ export const ProcessModal = ({
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         <div>
           <Input
-            label="Process Name"
+            label="Activity Name"
             type="text"
-            placeholder="Enter process name"
+            placeholder="Enter activity name"
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
             error={errors.name}
             disabled={loading}
             required
-            icon={Briefcase}
+            icon={ListChecks}
           />
         </div>
 
@@ -136,7 +148,7 @@ export const ProcessModal = ({
             Description
           </label>
           <textarea
-            placeholder="Enter process description (optional)"
+            placeholder="Enter activity description (optional)"
             value={formData.description}
             onChange={(e) => handleChange("description", e.target.value)}
             disabled={loading}
@@ -163,8 +175,8 @@ export const ProcessModal = ({
                 ? "Creating..."
                 : "Updating..."
               : mode === "create"
-              ? "Create Process"
-              : "Update Process"}
+              ? "Create Activity"
+              : "Update Activity"}
           </Button>
         </div>
       </form>

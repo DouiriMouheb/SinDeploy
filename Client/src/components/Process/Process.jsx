@@ -1,184 +1,375 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Settings, Plus, Search, Activity, Zap } from "lucide-react";
-import { Button } from "../common/Button";
-import { Input } from "../common/Input";
-import { ConfirmationModal } from "../common/ConfirmationModal";
-import { showToast } from "../../utils/toast";
-import { processService } from "../../services";
+// src/components/Process/Process.jsx - Complete process management
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import {
+  Plus,
+  RefreshCw,
+  AlertCircle,
+  Filter,
+  Briefcase,
+  ClipboardList,
+  ListChecks,
+} from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
-import { ProcessTable, ProcessModal, ProcessDetails } from "./index";
+import { Button } from "../common/Button";
+import { ConfirmationModal } from "../common/ConfirmationModal";
+import { ProcessTable } from "./ProcessTable";
+import { ProcessModal } from "./ProcessModal";
+import { ProcessFilters } from "./ProcessFilters";
+import { ProcessDetails } from "./ProcessDetails";
+import { processService } from "../../services";
+import { showToast } from "../../utils/toast";
 
 export const Process = () => {
   const [processes, setProcesses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showProcessModal, setShowProcessModal] = useState(false);
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedProcess, setSelectedProcess] = useState(null);
+  const [selectedProcessId, setSelectedProcessId] = useState(null);
   const [modalMode, setModalMode] = useState("create");
-  const [showDetails, setShowDetails] = useState(false);
-  const { user, isInitialized } = useAuth();
+  const [viewMode, setViewMode] = useState("list");
+  const [showFilters, setShowFilters] = useState(false);
+
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalProcesses: 0,
+  });
+
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 20,
+    search: "",
+    isActive: "true", // Default to showing active processes
+  });
+
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    totalActivities: 0,
+  });
+
+  const { user, hasRole } = useAuth();
+  const refreshTimeoutRef = useRef(null);
 
   const loadProcesses = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL || "http://localhost:5000/api"
-        }/processes`,
-        {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-          },
-        }
+      setError(null);
+
+      // Filter out empty values
+      const cleanFilters = Object.fromEntries(
+        Object.entries(filters).filter(([_, value]) => value !== "")
       );
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-      const responseData = await response.json();
-      let processes = [];
-      if (Array.isArray(responseData)) {
-        processes = responseData;
-      } else if (
-        responseData.success &&
-        responseData.data &&
-        responseData.data.processes
-      ) {
-        processes = responseData.data.processes;
-      } else if (responseData.processes) {
-        processes = responseData.processes;
+
+      const result = await processService.getProcesses(cleanFilters);
+
+      if (result.success && result.data) {
+        const { processes = [], pagination: paginationData, stats: statsData } = result.data;
+
+        setProcesses(processes);
+
+        if (paginationData) {
+          setPagination(paginationData);
+        }
+
+        if (statsData) {
+          setStats(statsData);
+        } else {
+          // Calculate basic stats if not provided by API
+          const totalActivities = processes.reduce(
+            (total, process) => total + (process.activities?.length || 0),
+            0
+          );
+          setStats({
+            total: processes.length,
+            active: processes.filter(p => p.isActive !== false).length,
+            totalActivities
+          });
+        }
+      } else {
+        setProcesses([]);
+        setPagination({ currentPage: 1, totalPages: 1, totalProcesses: 0 });
+        setStats({ total: 0, active: 0, totalActivities: 0 });
       }
-      setProcesses(processes);
-      console.log("[loadProcesses] Updated processes:", processes); // Debug log
     } catch (error) {
+      console.error("Error loading processes:", error);
+      setError(error.message || "Failed to load processes");
       showToast.error("Failed to load processes");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [filters]);
+
+  // Debounced refresh function
+  const debouncedRefresh = useCallback(() => {
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+    refreshTimeoutRef.current = setTimeout(() => {
+      loadProcesses();
+    }, 300);
+  }, [loadProcesses]);
 
   useEffect(() => {
-    if (isInitialized && user) {
+    if (user) {
       loadProcesses();
     }
-  }, [isInitialized, user, loadProcesses]);
+  }, [user, loadProcesses]);
 
-  const filteredProcesses = processes.filter(
-    (process) =>
-      process &&
-      process.name &&
-      process.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Handle filter changes
+  const handleFilterChange = useCallback((newFilters) => {
+    setFilters(prev => ({
+      ...prev,
+      ...newFilters,
+      page: 1, // Reset to first page when filters change
+    }));
+  }, []);
 
-  const totalActivities = processes.reduce(
-    (total, process) => total + (process.activities?.length || 0),
-    0
-  );
-
-  // Modal logic
-  const handleOpenProcessModal = (mode, process = null) => {
+  // Modal handlers
+  const openModal = (mode, process = null) => {
     setModalMode(mode);
     setSelectedProcess(process);
-    setShowProcessModal(true);
+    setShowModal(true);
   };
 
-  const handleOpenDetails = (process) => {
-    setSelectedProcess(process);
-    setShowDetails(true);
-  };
-
-  const handleCloseDetails = () => {
-    setShowDetails(false);
+  const closeModal = () => {
+    setShowModal(false);
     setSelectedProcess(null);
+    setModalMode("create");
   };
 
-  // Only reload the list and close modal, do not call API or show toast
-  const handleProcessSave = async () => {
+  const handleModalSuccess = async () => {
     await loadProcesses();
-    setShowProcessModal(false);
-    setSelectedProcess(null);
-    setSearchTerm(""); // Clear search so new process is visible
+    closeModal();
   };
 
-  const handleDelete = async (process) => {
+  // View handlers
+  const viewProcess = (processId) => {
+    setSelectedProcessId(processId);
+    setViewMode("details");
+  };
+
+  const backToList = () => {
+    setViewMode("list");
+    setSelectedProcessId(null);
+  };
+
+  // Delete handlers
+  const handleDeleteRequest = (process) => {
+    setSelectedProcess(process);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedProcess) return;
+
     try {
-      await processService.delete(process.id);
+      await processService.deleteProcess(selectedProcess.id);
       showToast.success("Process deleted successfully");
       await loadProcesses();
       setShowDeleteModal(false);
       setSelectedProcess(null);
     } catch (error) {
+      console.error("Error deleting process:", error);
       showToast.error(`Failed to delete process: ${error.message}`);
     }
   };
 
-  return (
-    <div>
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Process Management
-          </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Manage processes and their activities across the organization
-          </p>
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setSelectedProcess(null);
+  };
+
+  // Loading state
+  if (loading && processes.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="text-center">
+          <RefreshCw className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-4" />
+          <p className="text-slate-600 dark:text-slate-400">Loading processes...</p>
         </div>
-        <div className="flex space-x-2">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-400" />
-            </div>
-            <Input
-              type="text"
-              placeholder="Search processes..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-64"
-            />
-          </div>
-          <Button onClick={() => handleOpenProcessModal("create")}>
-            <Plus className="h-5 w-5 mr-2" />
-            Add Process
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && processes.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="text-center">
+          <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
+          <p className="text-slate-600 dark:text-slate-400 mb-4">{error}</p>
+          <Button onClick={loadProcesses} variant="secondary" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
           </Button>
         </div>
       </div>
+    );
+  }
 
-      {/* Process Table */}
-      <div className="bg-white shadow-lg rounded-lg border border-gray-200 mb-8">
+  // Show process details view
+  if (viewMode === "details" && selectedProcessId) {
+    return (
+      <ProcessDetails
+        processId={selectedProcessId}
+        onBack={backToList}
+        onEdit={(process) => {
+          setViewMode("list");
+          openModal("edit", process);
+        }}
+        onDelete={async (processId) => {
+          await processService.delete(processId);
+          loadProcesses(); // Refresh the list
+        }}
+        onRefresh={debouncedRefresh} // Use debounced refresh callback
+      />
+    );
+  }
+
+  // Show list view
+  return (
+    <div>
+      <div className="mb-8">
+        {/* Header - responsive layout */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Process Management
+            </h1>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              Manage processes and their activities across the organization
+            </p>
+          </div>
+
+          {/* Buttons - stack on mobile, inline on larger screens */}
+          <div className="flex space-x-2 sm:mt-0">
+            <Button
+              onClick={() => setShowFilters(!showFilters)}
+              variant="secondary"
+              size="sm"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Search
+            </Button>
+            <Button
+              onClick={loadProcesses}
+              variant="secondary"
+              size="sm"
+              disabled={loading}
+            >
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+              />
+              Refresh
+            </Button>
+            <Button onClick={() => openModal("create")} size="sm">
+              <Plus className="h-5 w-5 mr-2" />
+              Add Process
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      {showFilters && (
+        <ProcessFilters
+          filters={filters}
+          onFilterChange={handleFilterChange}
+        />
+      )}
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Briefcase className="h-6 w-6 text-gray-400" />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Total Processes
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {stats.total}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ClipboardList className="h-6 w-6 text-green-400" />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Active Processes
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {stats.active}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <ListChecks className="h-6 w-6 text-blue-400" />
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Total Activities
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {stats.totalActivities}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Processes Table */}
+      <div className="bg-slate-50 dark:bg-slate-800 shadow-lg rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
         <ProcessTable
-          processes={filteredProcesses}
-          loading={loading}
-          onView={handleOpenDetails}
-          onEdit={(process) => handleOpenProcessModal("edit", process)}
-          onDelete={(process) => {
-            setSelectedProcess(process);
-            setShowDeleteModal(true);
-          }}
+          processes={processes}
+          onView={viewProcess}
+          onEdit={(process) => openModal("edit", process)}
+          onDelete={handleDeleteRequest}
         />
       </div>
 
       {/* Process Modal */}
       <ProcessModal
-        isOpen={showProcessModal}
-        onClose={() => setShowProcessModal(false)}
+        isOpen={showModal}
+        onClose={closeModal}
+        process={selectedProcess}
         mode={modalMode}
-        process={selectedProcess}
-        onSuccess={handleProcessSave}
-      />
-
-      {/* Process Details Modal */}
-      <ProcessDetails
-        isOpen={showDetails}
-        onClose={handleCloseDetails}
-        process={selectedProcess}
+        onSuccess={handleModalSuccess}
       />
 
       {/* Delete Confirmation Modal */}
       <ConfirmationModal
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={() => handleDelete(selectedProcess)}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
         title="Delete Process"
-        message={`Are you sure you want to delete the process "${selectedProcess?.name}"? This will also delete all associated activities.`}
+        message={`Are you sure you want to delete "${selectedProcess?.name}"? This action cannot be undone and will also delete all associated activities.`}
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"

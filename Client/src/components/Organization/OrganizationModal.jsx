@@ -78,10 +78,10 @@ export const OrganizationModal = ({
 
       if (mode === "create") {
         result = await organizationService.create(formData);
-        console.log("Organization created:", result);
+     
       } else {
         result = await organizationService.update(organization.id, formData);
-        console.log("Organization updated:", result);
+      
       }
 
       // Extract the actual organization data from the API response
@@ -106,7 +106,6 @@ export const OrganizationModal = ({
         };
       }
 
-      console.log("Final organization data to pass:", organizationData);
       onSuccess(organizationData, mode);
     } catch (error) {
       console.error("Error saving organization:", error);

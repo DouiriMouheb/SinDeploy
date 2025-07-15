@@ -52,7 +52,7 @@ router.post(
       !processId ||
       !activityId ||
       !workPlaceType ||
-      !taskName ||
+     
       !date ||
       !startTime ||
       !endTime

@@ -15,6 +15,9 @@ const {
 } = require("./middleware/errorHandler");
 const { sequelize } = require("./models");
 
+// Add pg for database existence check
+const { Client } = require("pg");
+
 // Import routes
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
@@ -100,9 +103,30 @@ app.use(globalErrorHandler);
 // Database connection and server startup
 const PORT = config.server.port;
 
+// Helper to ensure DB exists before Sequelize connects
+async function ensureDatabaseExists() {
+  const dbConfig = {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: "postgres", // connect to default db
+  };
+  const targetDb = process.env.DB_NAME;
+  const client = new Client(dbConfig);
+  await client.connect();
+  const res = await client.query(`SELECT 1 FROM pg_database WHERE datname='${targetDb}'`);
+  if (res.rowCount === 0) {
+    await client.query(`CREATE DATABASE "${targetDb}"`);
+    console.log(`Database "${targetDb}" created`);
+  }
+  await client.end();
+}
+
 async function startServer() {
   try {
-    // Test database connection
+    // Ensure DB exists before Sequelize connects
+     // Test database connection
     await sequelize.authenticate();
     logger.info("Database connection established successfully");
 

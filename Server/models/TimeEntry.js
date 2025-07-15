@@ -72,15 +72,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         field: "work_location_address",
       },
-      taskName: {
-        type: DataTypes.STRING(300),
-        allowNull: false,
-        validate: {
-          notEmpty: true,
-          len: [2, 300],
-        },
-        field: "task_name",
-      },
+  
       description: {
         type: DataTypes.TEXT,
       },

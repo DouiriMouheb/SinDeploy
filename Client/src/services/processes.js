@@ -1,11 +1,20 @@
-// src/services/processes.js - Updated for new API structure
+// src/services/processes.js - Enhanced process management service
 import { apiClient } from "./api";
 
 export const processService = {
-  // Get all processes with their activities
-  async getAll() {
+  // Get all processes with optional filters and pagination
+  async getProcesses(filters = {}) {
     try {
-      const response = await apiClient.get("/processes");
+      const params = new URLSearchParams();
+
+      // Add filters to params
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          params.append(key, value);
+        }
+      });
+
+      const response = await apiClient.get(`/processes?${params.toString()}`);
       return {
         success: true,
         data: response.data,
@@ -16,21 +25,53 @@ export const processService = {
     }
   },
 
-  // Alias for getAll - for compatibility
-  async getProcesses() {
-    return this.getAll();
+  // Alias for getProcesses - for compatibility
+  async getAll() {
+    return this.getProcesses();
   },
 
-  // Get single process
-  async getById(id) {
+  // Get single process with activities
+  async getProcess(processId) {
     try {
-      const response = await apiClient.get(`/processes/${id}`);
+      const response = await apiClient.get(`/processes/${processId}`);
       return {
         success: true,
         data: response.data,
       };
     } catch (error) {
       console.error("Error fetching process:", error);
+      throw error;
+    }
+  },
+
+  // Alias for getProcess - for compatibility
+  async getById(id) {
+    return this.getProcess(id);
+  },
+
+  // Get process statistics
+  async getStats() {
+    try {
+      // For now, we'll calculate stats from the processes list
+      // In the future, this could be a dedicated API endpoint
+      const result = await this.getProcesses();
+      const processes = result.data?.processes || [];
+
+      let totalActivities = 0;
+      processes.forEach(process => {
+        totalActivities += (process.activities?.length || 0);
+      });
+
+      return {
+        success: true,
+        data: {
+          total: processes.length,
+          active: processes.filter(p => p.isActive !== false).length,
+          totalActivities
+        }
+      };
+    } catch (error) {
+      console.error("Error fetching process stats:", error);
       throw error;
     }
   },
@@ -247,97 +288,6 @@ export const processService = {
     }
   },
 
-  // Create new process
-  async create(processData) {
-    try {
-      const response = await apiClient.post("/processes", processData);
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error) {
-      console.error("Error creating process:", error);
-      throw error;
-    }
-  },
-
-  // Update process
-  async update(id, processData) {
-    try {
-      const response = await apiClient.put(`/processes/${id}`, processData);
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error) {
-      console.error("Error updating process:", error);
-      throw error;
-    }
-  },
-
-  // Delete process
-  async delete(id) {
-    try {
-      const response = await apiClient.delete(`/processes/${id}`);
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error) {
-      console.error("Error deleting process:", error);
-      throw error;
-    }
-  },
-
-  // Create activity for process
-  async createActivity(processId, activityData) {
-    try {
-      const response = await apiClient.post(
-        `/processes/${processId}/activities`,
-        activityData
-      );
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error) {
-      console.error("Error creating activity:", error);
-      throw error;
-    }
-  },
-
-  // Update activity
-  async updateActivity(processId, activityId, activityData) {
-    try {
-      const response = await apiClient.put(
-        `/processes/${processId}/activities/${activityId}`,
-        activityData
-      );
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error) {
-      console.error("Error updating activity:", error);
-      throw error;
-    }
-  },
-
-  // Delete activity
-  async deleteActivity(processId, activityId) {
-    try {
-      const response = await apiClient.delete(
-        `/processes/${processId}/activities/${activityId}`
-      );
-      return {
-        success: true,
-        data: response.data,
-      };
-    } catch (error) {
-      console.error("Error deleting activity:", error);
-      throw error;
-    }
-  },
 };
 
 export default processService;

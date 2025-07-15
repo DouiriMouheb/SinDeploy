@@ -48,7 +48,7 @@ export const Organizations = () => {
 
       // Use the organization service instead of direct fetch
       const result = await organizationService.getUserOrganizations();
-      console.log("Organizations service response:", result);
+    
 
       if (result.success && Array.isArray(result.data)) {
         setOrganizations(result.data); // Ensure organizations are set correctly

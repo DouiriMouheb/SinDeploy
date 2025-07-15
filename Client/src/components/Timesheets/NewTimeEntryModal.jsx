@@ -47,7 +47,7 @@ export const NewTimeEntryModal = ({
     processId: "",
     activityId: "",
     workPlaceType: "organization",
-    taskName: "",
+ 
     description: "",
     date: new Date().toISOString().split("T")[0],
     startTime: "",
@@ -131,7 +131,7 @@ export const NewTimeEntryModal = ({
       processId: "",
       activityId: "",
       workPlaceType: "organization",
-      taskName: "",
+   
       description: "",
       date: today,
       startTime,
@@ -159,7 +159,7 @@ export const NewTimeEntryModal = ({
         processId: timeEntry.processId || "",
         activityId: timeEntry.activityId || "",
         workPlaceType: timeEntry.workPlaceType || "organization",
-        taskName: timeEntry.taskName || "",
+    
         description: timeEntry.description || "",
         date: startDate.toISOString().split("T")[0],
         startTime: startDate.toTimeString().slice(0, 5),
@@ -274,7 +274,7 @@ export const NewTimeEntryModal = ({
     if (!formData.customerId) newErrors.customerId = "Customer is required";
     if (!formData.processId) newErrors.processId = "Process is required";
     if (!formData.activityId) newErrors.activityId = "Activity is required";
-    if (!formData.taskName.trim()) newErrors.taskName = "Task name is required";
+ 
 
     if (!formData.date) {
       newErrors.date = "Date is required";
@@ -322,7 +322,7 @@ export const NewTimeEntryModal = ({
         processId: formData.processId,
         activityId: formData.activityId,
         workPlaceType: formData.workPlaceType,
-        taskName: formData.taskName.trim(),
+      
         description: formData.description.trim(),
         date: formData.date,
         startTime: formData.startTime,
@@ -504,22 +504,7 @@ export const NewTimeEntryModal = ({
                   />
                 </div>
 
-                {/* Task Name */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Task Name *
-                  </label>
-                  <Input
-                    type="text"
-                    value={formData.taskName}
-                    onChange={(e) =>
-                      handleInputChange("taskName", e.target.value)
-                    }
-                    placeholder="Enter task name"
-                    error={errors.taskName}
-                    maxLength={300}
-                  />
-                </div>
+              
 
                 {/* Date Selection */}
                 <div className="space-y-2">

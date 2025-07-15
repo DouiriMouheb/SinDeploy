@@ -49,15 +49,12 @@ export const OrganizationDetails = ({ organizationId, onBack, onRefresh }) => {
       const result = await organizationService.getById(organizationId);
 
       if (result.success && result.data) {
-        console.log("Organization details loaded:", result.data);
+       
         const organizationData =
           result.data.data?.organization ||
           result.data.organization ||
           result.data;
-        console.log(
-          "Clients:",
-          organizationData.clients ? organizationData.clients.length : 0
-        );
+       
         setOrganization(organizationData);
         // Set form data for editing
         setEditForm({
