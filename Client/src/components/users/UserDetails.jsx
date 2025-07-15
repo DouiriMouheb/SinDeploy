@@ -25,7 +25,7 @@ import { Button } from "../common/Button";
 import { Input } from "../common/Input";
 import { ConfirmationModal } from "../common/ConfirmationModal";
 import { userService } from "../../services/users";
-import { timesheetService } from "../../services/timesheet";
+import { timesheetService } from "../../services/timesheets";
 import { generateTimesheetPDF } from "../../utils/pdfGenerator";
 import { showToast } from "../../utils/toast";
 import { ProfilePicture } from "../common/ProfilePicture"; // ADDED: Import ProfilePicture

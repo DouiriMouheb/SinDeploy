@@ -101,4 +101,25 @@ export const customerService = {
       throw error;
     }
   },
+
+  // Standard aliases for consistency
+  async getAll(filters = {}) {
+    return this.getCustomers(filters);
+  },
+
+  async getById(customerId) {
+    return this.getCustomer(customerId);
+  },
+
+  async create(customerData) {
+    return this.createCustomer(customerData);
+  },
+
+  async update(customerId, customerData) {
+    return this.updateCustomer(customerId, customerData);
+  },
+
+  async delete(customerId) {
+    return this.deleteCustomer(customerId);
+  },
 };

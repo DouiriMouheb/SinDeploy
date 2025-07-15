@@ -7,6 +7,14 @@ const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
 require("dotenv").config();
 
+// Debug: Log some key environment variables
+console.log('Environment check:', {
+  DB_HOST: process.env.DB_HOST,
+  DB_NAME: process.env.DB_NAME,
+  NODE_ENV: process.env.NODE_ENV,
+  JWT_SECRET: process.env.JWT_SECRET ? 'SET' : 'NOT SET'
+});
+
 const config = require("./config");
 const logger = require("./utils/logger");
 const {
@@ -126,15 +134,29 @@ async function ensureDatabaseExists() {
 async function startServer() {
   try {
     // Ensure DB exists before Sequelize connects
-     // Test database connection
-    await sequelize.authenticate();
-    logger.info("Database connection established successfully");
+    await ensureDatabaseExists();
+    logger.info("Database existence verified");
 
-    // Sync database models (in development)
-    if (config.server.env === "development") {
-      await sequelize.sync({ alter: true });
-      logger.info("Database models synchronized");
+    // Test database connection with retry
+    let dbRetries = 5;
+    while (dbRetries > 0) {
+      try {
+        await sequelize.authenticate();
+        logger.info("Database connection established successfully");
+        break;
+      } catch (error) {
+        dbRetries--;
+        logger.warn(`Database authentication failed. Retries left: ${dbRetries}`, error.message);
+        if (dbRetries === 0) {
+          throw error;
+        }
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
     }
+
+    // Sync database models (always sync in Docker)
+    await sequelize.sync({ alter: true });
+    logger.info("Database models synchronized");
 
     // Start server
     app.listen(PORT, "0.0.0.0", () => {

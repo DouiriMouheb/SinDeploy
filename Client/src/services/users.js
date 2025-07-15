@@ -421,4 +421,25 @@ export const userService = {
       };
     }
   },
+
+  // Standard aliases for consistency
+  async getAll(filters = {}) {
+    return this.getUsers(filters);
+  },
+
+  async getById(userId) {
+    return this.getUser(userId);
+  },
+
+  async create(userData) {
+    return this.createUser(userData);
+  },
+
+  async update(userId, userData) {
+    return this.updateUser(userId, userData);
+  },
+
+  async delete(userId) {
+    return this.deleteUser(userId);
+  },
 };

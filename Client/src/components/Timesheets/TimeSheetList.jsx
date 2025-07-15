@@ -19,7 +19,7 @@ import { ConfirmationModal } from "../common/ConfirmationModal";
 import { EnhancedTimeSheetTable } from "./EnhancedTimesheetTable";
 import { NewTimeEntryModal } from "./NewTimeEntryModal";
 import { TimesheetCalendarView } from "./TimesheetCalendarView";
-import { TimesheetCalendarView as TimesheetCalendarLandView } from "./TimesheetCalendarView_Enhanced";
+import { TimesheetCalendarView as TimesheetCalendarLandscapeView } from "./TimesheetCalendarView_Enhanced";
 import TimesheetTimeline from "./TimesheetTimeline";
 import { timesheetService } from "../../services/timesheets";
 import { processService } from "../../services/processes";
@@ -493,7 +493,7 @@ export const TimeSheetList = () => {
           <div
             style={{ display: viewMode === "calendarLand" ? "block" : "none" }}
           >
-            <TimesheetCalendarLandView
+            <TimesheetCalendarLandscapeView
               timeEntries={timeEntries}
               currentDate={currentDate}
               onDateChange={setCurrentDate}

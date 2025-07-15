@@ -4,7 +4,6 @@ import { Modal } from "../common/Modal";
 import { Input } from "../common/Input";
 import { Button } from "../common/Button";
 import { showToast } from "../../utils/toast";
-// import { timerService } from "../../services/timer"; // Legacy - disabled
 import { Calendar, Clock, Briefcase, Activity } from "lucide-react";
 
 export const TimeSheetModal = ({

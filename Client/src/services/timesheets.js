@@ -137,6 +137,50 @@ export const timesheetService = {
   async deleteEntry(entryId) {
     return this.deleteTimeEntry(entryId);
   },
+
+  // Get time entries for current user (from legacy timesheet.js)
+  async getUserTimeEntries(filters = {}) {
+    try {
+      const params = new URLSearchParams();
+
+      // Add filters to params
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          params.append(key, value);
+        }
+      });
+
+      const response = await apiClient.get(
+        `/timer/entries?${params.toString()}`
+      );
+      return response;
+    } catch (error) {
+      console.error("Error fetching time entries:", error);
+      throw error;
+    }
+  },
+
+  // Get time entries for specific user (admin/manager only) (from legacy timesheet.js)
+  async getUserTimeEntriesById(userId, filters = {}) {
+    try {
+      const params = new URLSearchParams();
+
+      // Add filters to params
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          params.append(key, value);
+        }
+      });
+
+      const response = await apiClient.get(
+        `/timer/users/${userId}/entries?${params.toString()}`
+      );
+      return response;
+    } catch (error) {
+      console.error("Error fetching user time entries:", error);
+      throw error;
+    }
+  },
 };
 
 // Backward compatibility - expose as timerService for existing code

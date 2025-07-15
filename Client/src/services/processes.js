@@ -15,10 +15,7 @@ export const processService = {
       });
 
       const response = await apiClient.get(`/processes?${params.toString()}`);
-      return {
-        success: true,
-        data: response.data,
-      };
+      return response;
     } catch (error) {
       console.error("Error fetching processes:", error);
       throw error;
@@ -34,10 +31,7 @@ export const processService = {
   async getProcess(processId) {
     try {
       const response = await apiClient.get(`/processes/${processId}`);
-      return {
-        success: true,
-        data: response.data,
-      };
+      return response;
     } catch (error) {
       console.error("Error fetching process:", error);
       throw error;
@@ -82,10 +76,7 @@ export const processService = {
       const response = await apiClient.get(
         `/processes/${processId}/activities`
       );
-      return {
-        success: true,
-        data: response.data,
-      };
+      return response;
     } catch (error) {
       console.error("Error fetching process activities:", error);
       throw error;
@@ -126,10 +117,7 @@ export const processService = {
   async create(data) {
     try {
       const response = await apiClient.post("/processes", data);
-      return {
-        success: true,
-        data: response.data,
-      };
+      return response;
     } catch (error) {
       console.error("Error creating process:", error);
       throw error;
@@ -171,10 +159,7 @@ export const processService = {
         `/processes/${processId}/activities`,
         data
       );
-      return {
-        success: true,
-        data: response.data,
-      };
+      return response;
     } catch (error) {
       console.error("Error creating activity:", error);
       throw error;
@@ -188,10 +173,7 @@ export const processService = {
         `/processes/${processId}/activities/${activityId}`,
         data
       );
-      return {
-        success: true,
-        data: response.data,
-      };
+      return response;
     } catch (error) {
       console.error("Error updating activity:", error);
       throw error;
@@ -204,10 +186,7 @@ export const processService = {
       const response = await apiClient.delete(
         `/processes/${processId}/activities/${activityId}`
       );
-      return {
-        success: true,
-        data: response.data,
-      };
+      return response;
     } catch (error) {
       console.error("Error deleting activity:", error);
       throw error;

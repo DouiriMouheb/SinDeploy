@@ -1,16 +1,14 @@
 // src/components/Process/ProcessDetails.jsx - Process details view
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   Edit,
   Briefcase,
-  FileText,
   Calendar,
   Clock,
   AlertCircle,
   ListChecks,
   Plus,
-  MoreVertical,
   Trash2,
   Save,
   X,
@@ -72,7 +70,7 @@ export const ProcessDetails = ({
         setError(null);
 
         const result = await processService.getProcess(processId);
-        if (result.success && result.data) {
+        if (result && result.data) {
           setProcess(result.data.process || result.data);
         } else {
           setError("Failed to load process details");
@@ -127,7 +125,7 @@ export const ProcessDetails = ({
         description: editForm.description.trim()
       });
 
-      if (result.success) {
+      if (result && result.data) {
         setProcess(prev => ({
           ...prev,
           name: editForm.name.trim(),
@@ -168,20 +166,22 @@ export const ProcessDetails = ({
   };
 
   const handleActivitySuccess = async () => {
-    // Refresh process data to get updated activities
-    if (onRefresh) {
-      onRefresh();
-    } else {
-      // Fallback if onRefresh not provided
-      try {
-        const result = await processService.getProcess(processId);
-        if (result.success && result.data) {
-          setProcess(result.data.process || result.data);
-        }
-      } catch (err) {
-        console.error("Error refreshing process:", err);
+    try {
+      // Always reload the process data to get updated activities
+      const result = await processService.getProcess(processId);
+      if (result && result.data) {
+        setProcess(result.data.process || result.data);
       }
+
+      // Also call onRefresh if provided (for parent component)
+      if (onRefresh) {
+        onRefresh();
+      }
+    } catch (err) {
+      console.error("Error refreshing process:", err);
+      showToast.error("Failed to refresh process data");
     }
+
     setShowActivityModal(false);
     setSelectedActivity(null);
   };
@@ -191,15 +191,15 @@ export const ProcessDetails = ({
       await processService.deleteActivity(processId, activityId);
       showToast.success("Activity deleted successfully");
 
-      // Refresh process data
+      // Always reload the process data to get updated activities
+      const result = await processService.getProcess(processId);
+      if (result && result.data) {
+        setProcess(result.data.process || result.data);
+      }
+
+      // Also call onRefresh if provided (for parent component)
       if (onRefresh) {
         onRefresh();
-      } else {
-        // Fallback if onRefresh not provided
-        const result = await processService.getProcess(processId);
-        if (result.success && result.data) {
-          setProcess(result.data.process || result.data);
-        }
       }
     } catch (err) {
       console.error("Error deleting activity:", err);

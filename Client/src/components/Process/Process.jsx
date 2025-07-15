@@ -1,5 +1,5 @@
 // src/components/Process/Process.jsx - Complete process management
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus,
   RefreshCw,
@@ -65,7 +65,7 @@ export const Process = () => {
 
       const result = await processService.getProcesses(cleanFilters);
 
-      if (result.success && result.data) {
+      if (result && result.data) {
         const { processes = [], pagination: paginationData, stats: statsData } = result.data;
 
         setProcesses(processes);
@@ -166,7 +166,7 @@ export const Process = () => {
     if (!selectedProcess) return;
 
     try {
-      await processService.deleteProcess(selectedProcess.id);
+      await processService.delete(selectedProcess.id);
       showToast.success("Process deleted successfully");
       await loadProcesses();
       setShowDeleteModal(false);

@@ -284,6 +284,113 @@ router.put(
 );
 
 /**
+ * @route   PUT /api/processes/:id/activities/:activityId
+ * @desc    Update an activity (Admin only)
+ * @access  Private (Admin)
+ */
+router.put(
+  "/:id/activities/:activityId",
+  requireAdmin,
+  catchAsync(async (req, res) => {
+    const { id, activityId } = req.params;
+    const { name, description } = req.body;
+
+    // Check if process exists
+    const process = await Process.findByPk(id);
+    if (!process) {
+      return res.status(404).json({
+        success: false,
+        message: "Process not found",
+      });
+    }
+
+    // Find the activity
+    const activity = await Activity.findOne({
+      where: { id: activityId, processId: id },
+    });
+
+    if (!activity) {
+      return res.status(404).json({
+        success: false,
+        message: "Activity not found",
+      });
+    }
+
+    // Update the activity
+    await activity.update({
+      name: name || activity.name,
+      description: description !== undefined ? description : activity.description,
+    });
+
+    logger.info(
+      `Activity updated: ${activity.name} for process: ${process.name}`,
+      {
+        adminUserId: req.user.id,
+        processId: id,
+        activityId: activityId,
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Activity updated successfully",
+      data: { activity },
+    });
+  })
+);
+
+/**
+ * @route   DELETE /api/processes/:id/activities/:activityId
+ * @desc    Delete an activity (Admin only)
+ * @access  Private (Admin)
+ */
+router.delete(
+  "/:id/activities/:activityId",
+  requireAdmin,
+  catchAsync(async (req, res) => {
+    const { id, activityId } = req.params;
+
+    // Check if process exists
+    const process = await Process.findByPk(id);
+    if (!process) {
+      return res.status(404).json({
+        success: false,
+        message: "Process not found",
+      });
+    }
+
+    // Find the activity
+    const activity = await Activity.findOne({
+      where: { id: activityId, processId: id },
+    });
+
+    if (!activity) {
+      return res.status(404).json({
+        success: false,
+        message: "Activity not found",
+      });
+    }
+
+    const activityName = activity.name;
+    await activity.destroy();
+
+    logger.info(
+      `Activity deleted: ${activityName} from process: ${process.name}`,
+      {
+        adminUserId: req.user.id,
+        processId: id,
+        activityId: activityId,
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Activity deleted successfully",
+    });
+  })
+);
+
+/**
  * @route   DELETE /api/processes/:id
  * @desc    Delete a process (Admin only)
  * @access  Private (Admin)

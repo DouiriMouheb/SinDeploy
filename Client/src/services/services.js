@@ -115,7 +115,5 @@ export const getResourceStats = async (endpoint, timeframe = "30d") => {
   return fetchWithParams(`${endpoint}/stats`, { timeframe });
 };
 
-// Export all service implementations
-
-export { userService } from "./users";
-export { authService } from "./auth";
+// Note: Individual services are exported from index.js
+// This file only contains utility functions for service implementations

@@ -75,7 +75,7 @@ export const ActivityModal = ({
         showToast.success("Activity updated successfully");
       }
 
-      if (result && result.success) {
+      if (result && result.data) {
         onSuccess && onSuccess(result.data);
       }
 

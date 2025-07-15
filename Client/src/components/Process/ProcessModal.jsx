@@ -87,7 +87,7 @@ export const ProcessModal = ({
       }
 
       // Pass the newly created or updated process data to the parent component
-      if (result && result.success && result.data) {
+      if (result && result.data) {
         onSuccess && onSuccess(result.data);
       }
 

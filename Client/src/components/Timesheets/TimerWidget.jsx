@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Square, Clock, AlertCircle } from "lucide-react";
 import { Button } from "../common/Button";
-// import { timerService } from "../../services/timer"; // Legacy - disabled
 import { showToast } from "../../utils/toast";
 
 export const TimerWidget = ({ onTimerUpdate, activeTimer, onRefresh }) => {
