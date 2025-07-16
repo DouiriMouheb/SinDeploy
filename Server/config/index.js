@@ -4,11 +4,11 @@ require("dotenv").config();
 const config = {
   // Database configuration
   database: {
-    host: process.env.DB_HOST || "localhost",
-    port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || "time_tracker",
-    username: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "password",
+    host: process.env.DB_HOST ,
+    port: process.env.DB_PORT ,
+    database: process.env.DB_NAME,
+    username: process.env.DB_USER ,
+    password: process.env.DB_PASSWORD ,
     dialect: "postgres",
     logging: process.env.NODE_ENV === "development" ? console.log : false,
     pool: {
@@ -42,19 +42,19 @@ const config = {
   // JWT configuration
   jwt: {
     secret:
-      process.env.JWT_SECRET ||
-      "your-super-secret-jwt-key-change-in-production",
-    accessTokenExpiry: process.env.JWT_ACCESS_EXPIRY || "15m",
-    refreshTokenExpiry: process.env.JWT_REFRESH_EXPIRY || "7d",
-    issuer: process.env.JWT_ISSUER || "time-tracker",
-    audience: process.env.JWT_AUDIENCE || "time-tracker-users",
+      process.env.JWT_SECRET,
+    
+    accessTokenExpiry: process.env.JWT_ACCESS_EXPIRY ,
+    refreshTokenExpiry: process.env.JWT_REFRESH_EXPIRY ,
+    issuer: process.env.JWT_ISSUER ,
+    audience: process.env.JWT_AUDIENCE,
   },
 
   // Server configuration
   server: {
-    port: process.env.PORT || 5000,
-    env: process.env.NODE_ENV || "development",
-    frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
+    port: process.env.PORT ,
+    env: process.env.NODE_ENV ,
+    frontendUrl: process.env.FRONTEND_URL ,
   },
 
   // Security configuration

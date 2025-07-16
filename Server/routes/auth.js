@@ -10,6 +10,20 @@ const logger = require("../utils/logger");
 const router = express.Router();
 
 /**
+ * @route   GET /api/auth/health
+ * @desc    Health check endpoint
+ * @access  Public
+ */
+router.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Server is healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+/**
  * @route   POST /api/auth/register
  * @desc    Register a new user
  * @access  Public

@@ -213,7 +213,7 @@ export const ProcessDetails = ({
       <div className="flex items-center justify-center min-h-64">
         <div className="text-center">
           <Clock className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-slate-600 dark:text-slate-400">Loading process details...</p>
+          <p className="text-slate-600">Loading process details...</p>
         </div>
       </div>
     );
@@ -225,7 +225,7 @@ export const ProcessDetails = ({
       <div className="flex items-center justify-center min-h-64">
         <div className="text-center">
           <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
-          <p className="text-slate-600 dark:text-slate-400 mb-4">{error}</p>
+          <p className="text-slate-600 mb-4">{error}</p>
           <Button onClick={onBack} variant="secondary" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Processes
@@ -241,7 +241,7 @@ export const ProcessDetails = ({
       <div className="flex items-center justify-center min-h-64">
         <div className="text-center">
           <Briefcase className="h-8 w-8 text-slate-400 mx-auto mb-4" />
-          <p className="text-slate-600 dark:text-slate-400 mb-4">Process not found</p>
+          <p className="text-slate-600  mb-4">Process not found</p>
           <Button onClick={onBack} variant="secondary" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Processes
@@ -350,7 +350,7 @@ export const ProcessDetails = ({
 
         {/* Process Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg">
+          <div className="bg-white  overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -370,7 +370,7 @@ export const ProcessDetails = ({
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg">
+          <div className="bg-white  overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -390,7 +390,7 @@ export const ProcessDetails = ({
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg">
+          <div className="bg-white  overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -412,10 +412,10 @@ export const ProcessDetails = ({
         </div>
 
         {/* Activities Section */}
-        <div className="bg-white dark:bg-slate-800 shadow rounded-lg">
-          <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-6 py-4 border-b border-slate-200 ">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">
+              <h3 className="text-lg font-medium text-slate-900">
                 Activities ({process.activities?.length || 0})
               </h3>
               <Button
@@ -434,14 +434,14 @@ export const ProcessDetails = ({
                 {process.activities.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                    className="flex items-center justify-between p-4 border border-slate-200  rounded-lg hover:bg-slate-50  transition-colors"
                   >
                     <div className="flex-1">
-                      <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                      <h4 className="text-sm font-medium text-slate-900 ">
                         {activity.name}
                       </h4>
                       {activity.description && (
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        <p className="text-sm text-slate-500  mt-1">
                           {activity.description}
                         </p>
                       )}

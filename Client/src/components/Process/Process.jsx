@@ -283,7 +283,7 @@ export const Process = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg">
+        <div className="bg-white  overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -303,7 +303,7 @@ export const Process = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg">
+        <div className="bg-white  overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -323,7 +323,7 @@ export const Process = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 overflow-hidden shadow rounded-lg">
+        <div className="bg-white  overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">

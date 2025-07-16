@@ -59,7 +59,7 @@ export const CustomerModal = ({
       // Direct call to the backend API to ensure we're getting the data
       const response = await fetch(
         `${
-          import.meta.env.VITE_API_URL || "http://localhost:5000/api"
+          import.meta.env.VITE_API_URL
         }/organizations`,
         {
           headers: {

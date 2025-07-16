@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Comfortaa", "sans-serif"],
+        sans: ["Nunito", "sans-serif"],
       },
     },
   },

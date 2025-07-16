@@ -273,7 +273,7 @@ export const Customers = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-slate-50 dark:bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-slate-200 dark:border-slate-700">
+        <div className="bg-slate-50 overflow-hidden shadow-lg rounded-lg border border-slate-200 ">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -281,10 +281,10 @@ export const Customers = () => {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
+                  <dt className="text-sm font-medium text-slate-500  truncate">
                     Total Customers
                   </dt>
-                  <dd className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                  <dd className="text-2xl font-semibold text-blac ">
                     {stats.total}
                   </dd>
                 </dl>
@@ -293,7 +293,7 @@ export const Customers = () => {
           </div>
         </div>
 
-        <div className="bg-slate-50 dark:bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-slate-200 dark:border-slate-700">
+        <div className="bg-slate-50  overflow-hidden shadow-lg rounded-lg border border-slate-200">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -301,10 +301,10 @@ export const Customers = () => {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
+                  <dt className="text-sm font-medium text-slate-500 truncate">
                     Active Customers
                   </dt>
-                  <dd className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                  <dd className="text-2xl font-semibold text-slate-900 ">
                     {stats.active}
                   </dd>
                 </dl>
@@ -313,7 +313,7 @@ export const Customers = () => {
           </div>
         </div>
 
-        <div className="bg-slate-50 dark:bg-slate-800 overflow-hidden shadow-lg rounded-lg border border-slate-200 dark:border-slate-700">
+        <div className="bg-slate-50  overflow-hidden shadow-lg rounded-lg border border-slate-200">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -321,10 +321,10 @@ export const Customers = () => {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
+                  <dt className="text-sm font-medium text-slate-500  truncate">
                     Total Projects
                   </dt>
-                  <dd className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                  <dd className="text-2xl font-semibold text-slate-900">
                     {stats.totalProjects}
                   </dd>
                 </dl>

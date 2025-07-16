@@ -3,71 +3,44 @@ name: sin-app
 services:
   db:
     image: postgres:16
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: sinuser
-      POSTGRES_PASSWORD: sinpassword
-      POSTGRES_DB: sindb
+    ports:
+      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - sinproject
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sinuser -d sindb"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
+      - sin-app
+    
   api:
     build:
       context: ./Server
-      target: production
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file: ./Server/.env
+    volumes:
+      - ./Server:/app
+      - /app/node_modules
     networks:
-      - sinproject
+      - sin-app
     depends_on:
-      db:
-        condition: service_healthy
+      - db
 
   client:
     build:
       context: ./Client
-      target: production
-      args:
-        - VITE_API_URL=https://${DOMAIN_NAME:-localhost}/api
       dockerfile: Dockerfile
     restart: unless-stopped
+    env_file: ./Client/.env
+    volumes:
+      - ./Client:/app
+      - /app/node_modules
     networks:
-      - sinproject
+      - sin-app
     depends_on:
       - api
-  
-  caddy:
-    build:
-      context: ./caddy
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-      - "443:443"
-    environment:
-      DOMAIN_NAME: ${DOMAIN_NAME}
-    restart: unless-stopped
-    volumes:
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - sinproject
-    depends_on:
-      - api 
-      - client
 
 volumes:
   db_data:
-  caddy_data:
-  caddy_config:
 
 networks:
-  sinproject:
+  sin-app:
     driver: bridge

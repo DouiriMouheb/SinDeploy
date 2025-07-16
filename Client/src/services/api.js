@@ -2,7 +2,7 @@
 class ApiClient {
   constructor() {
     // Use Caddy proxy - API calls go through the same domain
-    this.baseURL = import.meta.env.VITE_API_URL || "/api";
+    this.baseURL = import.meta.env.VITE_API_URL;
     this.defaultHeaders = {
       "Content-Type": "application/json",
     };

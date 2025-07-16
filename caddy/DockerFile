@@ -1,9 +1,35 @@
-# only used in production
+# Multi-stage build for Caddy with rate limiting plugin
 FROM caddy:2-builder AS builder
 
+# Build Caddy with rate limiting plugin
 RUN xcaddy build \
     --with github.com/mholt/caddy-ratelimit
 
+# Production stage
 FROM caddy:2-alpine
-COPY Caddyfile /etc/caddy/Caddyfile
+
+# Install additional tools for health checks
+RUN apk add --no-cache wget
+
+# Copy custom Caddy binary with plugins
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+
+# Create log directory
+RUN mkdir -p /var/log/caddy && \
+    chown -R caddy:caddy /var/log/caddy
+
+# Copy production Caddyfile
+COPY Caddyfile.prod /etc/caddy/Caddyfile
+
+# Expose ports
+EXPOSE 80 443
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
+
+# Run as caddy user
+USER caddy
+
+# Start Caddy
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]

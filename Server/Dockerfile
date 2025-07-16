@@ -1,40 +1,43 @@
-# Development Stage
-FROM node:22.2-bullseye AS development
+# Multi-stage build for production optimization
+FROM node:22.2-bullseye AS base
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies)
-RUN npm ci --include=dev
+# Install dependencies (using npm install to handle package.json changes)
+RUN npm install --only=production && npm cache clean --force
 
-# Force install nodemon globally as backup
-RUN npm install -g nodemon
-
-# Copy source code
+# Development stage
+FROM base AS development
+RUN npm install
 COPY . .
-
-# Run migrations and seed data in development
-# RUN npm run migrate && npm run seed
-
+EXPOSE 5000
 CMD ["npm", "run", "dev"]
 
-# Production Stage
-FROM node:22.2-bullseye AS production
+# Production stage
+FROM base AS production
 
-# Set working directory
-WORKDIR /app
+# Create non-root user for security
+RUN groupadd -r nodeuser && useradd -r -g nodeuser nodeuser
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies (production only)
-RUN npm ci --only=production
-
-# Copy source code directly (no build step needed for JS)
+# Copy application code
 COPY . .
 
-# Start production server
+# Change ownership to non-root user
+RUN chown -R nodeuser:nodeuser /app
+
+# Switch to non-root user
+USER nodeuser
+
+# Expose port
+EXPOSE 5000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:5000/api/auth/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"
+
+# Start application
 CMD ["npm", "start"]
+

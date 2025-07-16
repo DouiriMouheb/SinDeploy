@@ -1,55 +1,38 @@
-# Development Stage
-FROM node:22.2-bullseye AS development
+# Multi-stage build for production optimization
+FROM node:22.2-bullseye AS base
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Development stage
+FROM base AS development
 RUN npm ci
-
-# Copy source code
 COPY . .
-
-# Expose development port
 EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host"]
 
-# Start development server
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
-
-# Build Stage
-FROM node:22.2-bullseye AS build
-
-# Set working directory
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
+# Build stage
+FROM base AS build
 RUN npm ci
-
-# Copy source code
 COPY . .
-
-# Build arguments
-ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL}
-
-# Build the application
 RUN npm run build
 
-# Production Stage
+# Production stage - serve static files
 FROM caddy:2-alpine AS production
 
-# Copy built files from build stage
+# Copy built files to Caddy's web root
 COPY --from=build /app/dist /srv
 
-# Copy Caddyfile
+# Copy Caddyfile for client
 COPY Caddyfile /etc/caddy/Caddyfile
 
+# Expose port 80
 EXPOSE 80
 
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
+
+# Caddy runs automatically

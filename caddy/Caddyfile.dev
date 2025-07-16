@@ -1,12 +1,8 @@
-{
-    local_certs
-}
-
-auth.localhost {
+auth.localhost:80 {
     encode gzip
     reverse_proxy client:5173
 }
 
-api.auth.localhost {
+api.auth.localhost:80 {
     reverse_proxy api:5000
 }
