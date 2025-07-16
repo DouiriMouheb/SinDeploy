@@ -25,8 +25,8 @@ RUN groupadd -r nodeuser && useradd -r -g nodeuser nodeuser
 # Copy application code
 COPY . .
 
-# Change ownership to non-root user
-RUN chown -R nodeuser:nodeuser /app
+# Create logs directory and change ownership to non-root user
+RUN mkdir -p /app/logs && chown -R nodeuser:nodeuser /app
 
 # Switch to non-root user
 USER nodeuser
