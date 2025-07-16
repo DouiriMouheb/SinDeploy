@@ -1,0 +1,27 @@
+{
+    email your-email@dcodelabs.studio
+}
+
+dcodelabs.studio, www.dcodelabs.studio {
+    encode gzip
+    reverse_proxy client:5173
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+}
+
+api.dcodelabs.studio {
+    encode gzip
+    reverse_proxy api:5000
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+    }
+}

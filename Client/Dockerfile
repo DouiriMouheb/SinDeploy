@@ -25,8 +25,9 @@ FROM caddy:2-alpine AS production
 # Copy built files to Caddy's web root
 COPY --from=build /app/dist /srv
 
-# Copy Caddyfile for client
-COPY Caddyfile /etc/caddy/Caddyfile
+# Copy appropriate Caddyfile based on build target
+ARG CADDY_CONFIG=Caddyfile
+COPY ${CADDY_CONFIG} /etc/caddy/Caddyfile
 
 # Expose port 80
 EXPOSE 80

@@ -19,6 +19,7 @@ services:
     volumes:
       - ./Server:/app
       - /app/node_modules
+      - api_logs:/app/logs
     networks:
       - sin-app
     depends_on:
@@ -40,6 +41,7 @@ services:
 
 volumes:
   db_data:
+  api_logs:
 
 networks:
   sin-app:
