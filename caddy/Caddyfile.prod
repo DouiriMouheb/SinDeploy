@@ -1,15 +1,15 @@
 # ==============================================
-# PRODUCTION CADDYFILE FOR DIGITALOCEAN
+# PRODUCTION CADDYFILE FOR DCODELABS.STUDIO
 # ==============================================
 
 # Global configuration
 {
     # Enable automatic HTTPS
     auto_https on
-    
-    # Email for Let's Encrypt (replace with your email)
-    email admin@{$DOMAIN_NAME}
-    
+
+    # Email for Let's Encrypt
+    email admin@dcodelabs.studio
+
     # Security settings
     servers {
         trusted_proxies static private_ranges
@@ -17,7 +17,7 @@
 }
 
 # Main domain - serves React app
-{$DOMAIN_NAME} {
+dcodelabs.studio {
     # Enable compression
     encode gzip zstd
 
@@ -49,37 +49,18 @@
         Permissions-Policy "geolocation=(), microphone=(), camera=()"
     }
 
-    # API routes - proxy to backend
-    handle /api/* {
-        reverse_proxy api:5000 {
-            # Health check
-            health_uri /api/auth/health
-            health_interval 30s
-            health_timeout 5s
-            
-            # Load balancing (if scaling)
-            lb_policy round_robin
-            
-            # Headers for backend
-            header_up Host {host}
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
-        }
-    }
+    # Static files - serve React app (all non-API routes)
+    reverse_proxy client:80 {
+        # Health check
+        health_uri /
+        health_interval 30s
+        health_timeout 5s
 
-    # Static files - serve React app
-    handle {
-        # Try files, fallback to index.html for SPA routing
-        try_files {path} /index.html
-        
-        # Serve from client container
-        reverse_proxy client:80 {
-            # Health check
-            health_uri /
-            health_interval 30s
-            health_timeout 5s
-        }
+        # Headers for frontend
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
     }
 
     # Rate limiting
@@ -110,14 +91,14 @@
 }
 
 # WWW redirect
-www.{$DOMAIN_NAME} {
-    redir https://{$DOMAIN_NAME}{uri} permanent
+www.dcodelabs.studio {
+    redir https://dcodelabs.studio{uri} permanent
 }
 
-# API subdomain (optional alternative)
-api.{$DOMAIN_NAME} {
+# API subdomain - serves backend API
+api.dcodelabs.studio {
     encode gzip zstd
-    
+
     # Security headers for API
     header {
         -Server
@@ -125,25 +106,29 @@ api.{$DOMAIN_NAME} {
         Strict-Transport-Security "max-age=31536000; includeSubDomains"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
+        Access-Control-Allow-Origin "https://dcodelabs.studio"
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+        Access-Control-Allow-Credentials "true"
     }
-    
+
     # Proxy all requests to API
     reverse_proxy api:5000 {
-        health_uri /api/auth/health
+        health_uri /health
         health_interval 30s
         health_timeout 5s
-        
+
         header_up Host {host}
         header_up X-Real-IP {remote_host}
         header_up X-Forwarded-For {remote_host}
         header_up X-Forwarded-Proto {scheme}
     }
-    
-    # Strict rate limiting for API subdomain
+
+    # Rate limiting for API subdomain
     rate_limit {
         zone api_subdomain {
             key {remote_host}
-            events 50
+            events 100
             window 1m
         }
     }

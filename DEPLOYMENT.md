@@ -1,13 +1,46 @@
-# 🚀 Sinergia Deployment Guide
+# 🚀 Sinergia Production Deployment Guide
 
-This guide covers deploying the Sinergia application to a DigitalOcean droplet using Docker and Caddy.
+This guide covers deploying the Sinergia application to production using Docker and Caddy with automatic SSL.
 
 ## 📋 Prerequisites
 
-- DigitalOcean droplet (Ubuntu 22.04 LTS recommended)
-- Domain name pointing to your droplet's IP
-- SSH access to your droplet
+- Ubuntu 22.04 LTS server (DigitalOcean droplet recommended)
+- Domain name `dcodelabs.studio` pointing to your server's IP
+- SSH access to your server
 - Docker and Docker Compose installed
+
+## 🔧 Quick Deployment (For Existing Corrupted Installation)
+
+If you have a corrupted deployment, follow these steps:
+
+### 1. SSH to your server
+```bash
+ssh root@your-server-ip
+```
+
+### 2. Navigate to project directory
+```bash
+cd /var/www/SinDeploy  # or wherever your project is located
+```
+
+### 3. Run cleanup script
+```bash
+chmod +x cleanup.sh
+./cleanup.sh
+```
+
+### 4. Pull latest code
+```bash
+git pull origin main
+```
+
+### 5. Deploy
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+## 🛠️ Fresh Server Setup
 
 ## 🛠️ Server Setup
 

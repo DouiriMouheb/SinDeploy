@@ -212,8 +212,8 @@ if (config.server.env !== "test") {
   app.use(morgan("combined", { stream: logger.stream }));
 }
 
-// Health check endpoint
-console.log('Setting up main health check endpoint...');
+// Health check endpoints
+console.log('Setting up health check endpoints...');
 app.get("/health", (req, res) => {
   res.json({
     success: true,
@@ -222,7 +222,17 @@ app.get("/health", (req, res) => {
     environment: config.server.env,
   });
 });
-console.log('Main health check endpoint set up');
+
+// Also add /api/health for frontend compatibility
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    message: "Time Tracker API is running",
+    timestamp: new Date().toISOString(),
+    environment: config.server.env,
+  });
+});
+console.log('Health check endpoints set up');
 
 // API routes - temporarily commenting out to isolate the issue
 console.log('About to register auth routes...');
