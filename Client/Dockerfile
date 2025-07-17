@@ -31,20 +31,14 @@ COPY --from=build /app/dist /srv
 # Copy production Caddyfile
 COPY Caddyfile /etc/caddy/Caddyfile
 
-# Create caddy user and set permissions
-RUN chown -R caddy:caddy /srv
-
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
 
-# Run as caddy user
-USER caddy
-
 # Expose port 80
 EXPOSE 80
 
-# Start Caddy
+# Start Caddy (runs as caddy user by default)
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 
 # Health check

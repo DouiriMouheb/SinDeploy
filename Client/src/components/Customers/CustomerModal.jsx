@@ -5,6 +5,7 @@ import { Modal } from "../common/Modal";
 import { Input } from "../common/Input";
 import { Button } from "../common/Button";
 import { customerService } from "../../services/customers";
+import { apiClient } from "../../services/api";
 import { showToast } from "../../utils/toast";
 
 export const CustomerModal = ({
@@ -56,28 +57,13 @@ export const CustomerModal = ({
   const loadOrganizations = async () => {
     setLoadingOrganizations(true);
     try {
-      // Direct call to the backend API to ensure we're getting the data
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/organizations`,
-        {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+      // Use apiClient for consistent API calls
+      const response = await apiClient.get("/organizations");
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      if (data.success && Array.isArray(data.data)) {
-        setOrganizations(data.data); // Correctly set the organizations array
+      if (response.success && Array.isArray(response.data)) {
+        setOrganizations(response.data); // Correctly set the organizations array
       } else {
-        console.error("Unexpected response format:", data);
+        console.error("Unexpected response format:", response);
         showToast.error("Invalid organization data format");
       }
     } catch (error) {

@@ -27,16 +27,16 @@ const { sequelize } = require("./models");
 // Add pg for database existence check
 const { Client } = require("pg");
 
-// Import routes - switching back to full auth routes
+// Import routes - enabling all routes for production
 const authRoutes = require("./routes/auth");
-// const userRoutes = require("./routes/users");
-// const adminRoutes = require("./routes/admin");
-// const organizationRoutes = require("./routes/organization");
-// const processRoutes = require("./routes/processes");
-// const timesheetRoutes = require("./routes/timesheets");
-// const customerRoutes = require("./routes/customers");
-// const projectRoutes = require("./routes/projects");
-// const dailyLoginRoutes = require("./routes/dailyLogin");
+const userRoutes = require("./routes/users");
+const adminRoutes = require("./routes/admin");
+const organizationRoutes = require("./routes/organization");
+const processRoutes = require("./routes/processes");
+const timesheetRoutes = require("./routes/timesheets");
+const customerRoutes = require("./routes/customers");
+const projectRoutes = require("./routes/projects");
+const dailyLoginRoutes = require("./routes/dailyLogin");
 
 const app = express();
 
@@ -234,22 +234,39 @@ app.get("/api/health", (req, res) => {
 });
 console.log('Health check endpoints set up');
 
-// API routes - temporarily commenting out to isolate the issue
-console.log('About to register auth routes...');
+// API routes - enabling all routes for production
+console.log('Registering all API routes...');
 try {
   app.use("/api/auth", authRoutes);
   console.log('Auth routes registered successfully');
+
+  app.use("/api/users", userRoutes);
+  console.log('User routes registered successfully');
+
+  app.use("/api/admin", adminRoutes);
+  console.log('Admin routes registered successfully');
+
+  app.use("/api/organizations", organizationRoutes);
+  console.log('Organization routes registered successfully');
+
+  app.use("/api/processes", processRoutes);
+  console.log('Process routes registered successfully');
+
+  app.use("/api/timesheets", timesheetRoutes);
+  console.log('Timesheet routes registered successfully');
+
+  app.use("/api/customers", customerRoutes);
+  console.log('Customer routes registered successfully');
+
+  app.use("/api/projects", projectRoutes);
+  console.log('Project routes registered successfully');
+
+  app.use("/api/daily-login", dailyLoginRoutes);
+  console.log('Daily login routes registered successfully');
+
 } catch (error) {
-  console.error('Error registering auth routes:', error);
+  console.error('Error registering routes:', error);
 }
-// app.use("/api/users", userRoutes);
-// app.use("/api/admin", adminRoutes);
-// app.use("/api/organizations", organizationRoutes);
-// app.use("/api/processes", processRoutes);
-// app.use("/api/timesheets", timesheetRoutes);
-// app.use("/api/customers", customerRoutes);
-// app.use("/api/projects", projectRoutes);
-// app.use("/api/daily-login", dailyLoginRoutes);
 
 // 404 handler
 console.log('Setting up 404 handler...');
