@@ -32,8 +32,8 @@ const AppContent = () => {
 
       case "users":
         return (
-          <ProtectedRoute requiredRole="manager">
-            <Users />
+          <ProtectedRoute requiredRole="admin">
+            <Users />user
           </ProtectedRoute>
         );
 

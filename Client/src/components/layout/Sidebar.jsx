@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 import { ProfilePicture } from "../common/ProfilePicture";
-import { DailyLoginTracker } from "../common/DailyLoginTracker";
+
 
 export const Sidebar = ({
   currentPage,
@@ -23,10 +23,7 @@ export const Sidebar = ({
   const navigation = [
     { name: "TimeSheets", icon: Hourglass, page: "timesheets" },
 
-    // Manager-level access
-    ...(hasRole("manager")
-      ? [{ name: "Users", icon: Users, page: "users" }]
-      : []),
+  
 
     // Admin-only access
     ...(hasRole("admin")
@@ -147,16 +144,7 @@ export const Sidebar = ({
           )}
         </div>
 
-        {/* Daily Login Tracker - only show when sidebar is open */}
-        {isOpen && (
-          <div className="mb-3">
-            <DailyLoginTracker
-              variant="compact"
-              className="text-xs bg-blue-50 border border-blue-200 rounded-md p-2"
-            />
-          </div>
-        )}
-
+   
         <button
           onClick={logout}
           className={`w-full flex items-center ${

@@ -2,7 +2,7 @@
 import { apiClient } from "./api";
 
 export const userService = {
-  // Get all users (managers and admins only)
+  // Get all users ( admins   only)
   async getUsers(filters = {}) {
     try {
       const queryParams = new URLSearchParams();

@@ -29,12 +29,11 @@ import { timesheetService } from "../../services/timesheets";
 import { generateTimesheetPDF } from "../../utils/pdfGenerator";
 import { showToast } from "../../utils/toast";
 import { ProfilePicture } from "../common/ProfilePicture"; // ADDED: Import ProfilePicture
-import { DailyLoginTracker } from "../common/DailyLoginTracker"; // ADDED: Import DailyLoginTracker
+
 
 const getRoleColor = (role) => {
   const colors = {
     admin: "bg-red-100 text-red-800 border-red-200",
-    manager: "bg-blue-100 text-blue-800 border-blue-200",
     user: "bg-green-100 text-green-800 border-green-200",
   };
   return colors[role] || "bg-gray-100 text-gray-800 border-gray-200";
@@ -331,8 +330,7 @@ export const UserDetails = ({
   const isCurrentUser = userId === currentUser.id || userId === currentUser._id;
   const canEdit = () => {
     return (
-      hasRole("admin") ||
-      (hasRole("manager") && user?.department === currentUser.department)
+      hasRole("admin") 
     );
   };
   const canToggleStatus = () => !isCurrentUser && canEdit();
@@ -401,15 +399,8 @@ export const UserDetails = ({
                   </h1>
                   <p className="text-sm text-gray-500 mt-1">{user.email}</p>
 
-                  {/* Inline daily activity for current user */}
-                  {isCurrentUser && (
-                    <div className="mt-2">
-                      <DailyLoginTracker
-                        variant="inline"
-                        className="text-sm bg-blue-50 border border-blue-200 rounded-md px-3 py-2"
-                      />
-                    </div>
-                  )}
+                 
+             
                 </div>
               </div>
             </div>
@@ -455,8 +446,8 @@ export const UserDetails = ({
                 </>
               )}
 
-              {/* Download Timesheet button - available for managers/admins */}
-              {(hasRole("manager") || hasRole("admin")) && (
+              {/* Download Timesheet button - available for admins */}
+              {( hasRole("admin")) && (
                 <Button
                   onClick={downloadTimesheetPDF}
                   variant="secondary"
@@ -646,17 +637,7 @@ export const UserDetails = ({
                 )}
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                    <div className="flex items-center">
-                      <LogIn className="h-4 w-4 text-gray-400 mr-2" />
-                      <div>
-                        <p className="text-xs text-gray-500">Last Login</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {formatRelativeTime(user.lastLogin)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                 
 
                   <div className="p-4 border border-gray-200 rounded-lg bg-gray-50">
                     <div className="flex items-center">
@@ -673,7 +654,7 @@ export const UserDetails = ({
               </div>
             </div>
 
-            {/* Daily Login Tracker - only show for current user or if viewing others as admin/manager */}
+            {/* Daily Login Tracker - only show for current user or if viewing others as admin 
             {(isCurrentUser || canEdit()) && (
               <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
                 <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
@@ -688,9 +669,9 @@ export const UserDetails = ({
                   />
                 </div>
               </div>
-            )}
+            )}*/}
 
-            {/* Account Timeline */}
+            {/* Account Timeline 
             <div className="bg-white shadow-lg rounded-lg p-6 border border-gray-200">
               <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
                 <Clock className="h-5 w-5 mr-2" />
@@ -736,7 +717,7 @@ export const UserDetails = ({
                   </div>
                 )}
               </div>
-            </div>
+            </div>*/}
           </div>
         </div>
       </div>

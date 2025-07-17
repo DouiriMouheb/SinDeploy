@@ -73,7 +73,7 @@ router.get(
         {
           model: TimeEntry,
           as: "timeEntries",
-          attributes: ["id", "date", "duration", "taskName"],
+          attributes: ["id", "date", "duration", ],
           limit: 10,
           order: [["date", "DESC"]],
         },

@@ -1,6 +1,5 @@
-// src/components/Customers/CustomerModal.jsx - Customer create/edit modal
-import React, { useState, useEffect } from "react";
-import { X, Building2, Mail, Phone, MapPin, FileText } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, User, Building2,Mail, Phone, MapPin, FileText } from "lucide-react";
 import { Modal } from "../common/Modal";
 import { Input } from "../common/Input";
 import { Button } from "../common/Button";
@@ -165,24 +164,16 @@ export const CustomerModal = ({
     <Modal isOpen={isOpen} onClose={handleClose} size="lg">
       <div className="flex items-center justify-between p-6 border-b border-gray-200">
         <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-          <Building2 className="h-5 w-5 mr-2 text-blue-500" />
+          <User className="h-5 w-5 mr-2 text-blue-500" />
           {mode === "create" ? "Add New Customer" : "Edit Customer"}
         </h2>
-        <button
-          onClick={handleClose}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
-          disabled={loading}
-        >
-          <X className="h-6 w-6" />
-        </button>
+       
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         {/* Organization Selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Organization
-          </label>
+          
           <div className="relative">
             <Building2 className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <select
@@ -218,22 +209,20 @@ export const CustomerModal = ({
         {/* Customer Name */}
         <div>
           <Input
-            label="Customer Name"
+            
             type="text"
             placeholder="Enter customer name"
             value={formData.name}
             onChange={(e) => handleInputChange("name", e.target.value)}
             error={errors.name}
-            icon={Building2}
+            icon={User}
             required
           />
         </div>
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description
-          </label>
+     
           <div className="relative">
             <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <textarea
@@ -254,7 +243,7 @@ export const CustomerModal = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Input
-              label="Contact Email"
+
               type="email"
               placeholder="customer@example.com"
               value={formData.contactEmail}
@@ -268,7 +257,7 @@ export const CustomerModal = ({
 
           <div>
             <Input
-              label="Contact Phone"
+             
               type="tel"
               placeholder="+1 (555) 123-4567"
               value={formData.contactPhone}
@@ -282,9 +271,7 @@ export const CustomerModal = ({
 
         {/* Address */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Address
-          </label>
+        
           <div className="relative">
             <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <textarea

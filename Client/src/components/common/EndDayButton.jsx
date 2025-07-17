@@ -10,72 +10,16 @@ export const EndDayButton = ({
   variant = "default", // "default" | "compact" | "sidebar"
   onDayEnded = null,
 }) => {
-  const [tracker, setTracker] = useState(null);
+  
   const [loading, setLoading] = useState(true);
   const [endingDay, setEndingDay] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadTodayTracker();
 
-    // Auto-refresh every minute to update working time
-    const interval = setInterval(loadTodayTracker, 60000);
-    return () => clearInterval(interval);
-  }, []);
 
-  const loadTodayTracker = async () => {
-    try {
-      setLoading(true);
-      setError(null);
 
-      const response = await dailyLoginService.getTodayTracker();
-      if (response.success) {
-        setTracker(response.data.tracker);
-      }
-    } catch (err) {
-      console.error("Error loading today's tracker:", err);
-      setError(err.message || "Failed to load daily tracker");
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleEndDay = async () => {
-    if (!tracker || endingDay) return;
 
-    setEndingDay(true);
-    try {
-      const response = await dailyLoginService.endDay();
-      if (response.success) {
-        setTracker(response.data.tracker);
-        showToast.success("Working day ended successfully!");
-        if (onDayEnded) {
-          onDayEnded(response.data.tracker);
-        }
-      }
-    } catch (err) {
-      console.error("Error ending day:", err);
-      showToast.error("Failed to end working day");
-    } finally {
-      setEndingDay(false);
-    }
-  };
-
-  const calculateWorkingTime = () => {
-    if (!tracker?.firstLoginTime) return "0h 0m";
-
-    const startTime = new Date(tracker.firstLoginTime);
-    const endTime = tracker.dayEndTime
-      ? new Date(tracker.dayEndTime)
-      : new Date();
-    const diffMs = endTime - startTime;
-    const diffHours = Math.max(0, diffMs / (1000 * 60 * 60));
-
-    const hours = Math.floor(diffHours);
-    const minutes = Math.round((diffHours - hours) * 60);
-
-    return `${hours}h ${minutes}m`;
-  };
 
   const formatTime = (dateString) => {
     if (!dateString) return "N/A";
@@ -98,34 +42,7 @@ export const EndDayButton = ({
     );
   }
 
-  if (error) {
-    return (
-      <div className={`flex items-center text-red-600 text-xs ${className}`}>
-        <AlertCircle className="h-3 w-3 mr-1" />
-        Error loading tracker
-      </div>
-    );
-  }
-
-  // Don't show anything if no login recorded today
-  if (!tracker) {
-    return null;
-  }
-
-  // Don't show if day already ended
-  if (tracker.dayEndTime) {
-    if (variant === "compact") {
-      return (
-        <div className={`text-xs text-gray-500 ${className}`}>
-          <div className="flex items-center">
-            <Moon className="h-3 w-3 mr-1" />
-            Day ended at {formatTime(tracker.dayEndTime)}
-          </div>
-        </div>
-      );
-    }
-    return null;
-  }
+ 
 
   // Sidebar variant - very compact
   if (variant === "sidebar") {
@@ -190,10 +107,7 @@ export const EndDayButton = ({
   // Default variant
   return (
     <div className={`${className}`}>
-      <div className="mb-2 text-sm text-gray-600">
-        Started at {formatTime(tracker.firstLoginTime)} • Working:{" "}
-        {calculateWorkingTime()}
-      </div>
+    
       <Button
         onClick={handleEndDay}
         variant="primary"

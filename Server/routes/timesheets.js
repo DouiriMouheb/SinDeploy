@@ -36,7 +36,7 @@ router.post(
       activityId,
       workPlaceType, // Updated to match frontend
       workLocationAddress,
-      taskName,
+      
       description,
       date,
       startTime,
@@ -60,7 +60,7 @@ router.post(
       return res.status(400).json({
         success: false,
         message:
-          "All required fields must be provided: organizationId, customerId, processId, activityId, workPlaceType, taskName, date, startTime, endTime",
+          "All required fields must be provided: organizationId, customerId, processId, activityId, workPlaceType, date, startTime, endTime",
       });
     }
 
@@ -144,7 +144,7 @@ router.post(
       activityId,
       workPlaceType: workPlaceType,
       workPlaceAddress: finalWorkLocationAddress,
-      taskName,
+     
       description,
       date: entryDate,
       startTime: startDateTime,
@@ -346,7 +346,7 @@ router.put(
   catchAsync(async (req, res) => {
     const { id } = req.params;
     const {
-      taskName,
+      
       description,
       date,
       startTime,
@@ -373,7 +373,7 @@ router.put(
     const updates = {};
 
     // Basic field updates
-    if (taskName) updates.taskName = taskName;
+  
     if (description !== undefined) updates.description = description;
     if (notes !== undefined) updates.notes = notes;
     if (workLocationtype) updates.workPlaceType = workLocationtype;

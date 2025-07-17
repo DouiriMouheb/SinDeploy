@@ -149,10 +149,7 @@ export const TimeSheetModal = ({
       }
     }
 
-    // Validate common fields
-    if (!timeEntry.taskName?.trim()) {
-      validationErrors.push("Task name is required");
-    }
+   
 
     if (!timeEntry.date) {
       validationErrors.push("Date is required");
@@ -183,9 +180,8 @@ export const TimeSheetModal = ({
           errorObject.workProjectId = error;
         } else if (error.includes("Activity")) {
           errorObject.activityId = error;
-        } else if (error.includes("Task name")) {
-          errorObject.taskName = error;
-        } else if (error.includes("Date")) {
+        } 
+         else if (error.includes("Date")) {
           errorObject.date = error;
         } else if (error.includes("Start time")) {
           errorObject.startTime = error;
@@ -220,7 +216,7 @@ export const TimeSheetModal = ({
       // Prepare data for submission with proper entry type structure
       const submitData = {
         entryType: entryType,
-        taskName: timeEntry.taskName.trim(),
+        
         description: timeEntry.description?.trim() || "",
         date: timeEntry.date,
         startTime: timeEntry.startTime,
@@ -402,17 +398,7 @@ export const TimeSheetModal = ({
 
         {/* Task Information */}
         <div className="space-y-4">
-          <Input
-            label="Task Name"
-            type="text"
-            value={timeEntry?.taskName || ""}
-            onChange={(e) => handleInputChange("taskName", e.target.value)}
-            disabled={isReadOnly}
-            required
-            error={errors.taskName}
-            placeholder="What did you work on?"
-            icon={Briefcase}
-          />
+          
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

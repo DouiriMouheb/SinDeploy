@@ -3,7 +3,6 @@ const logger = require("../utils/logger");
 
 const ROLES = {
   USER: "user",
-  MANAGER: "manager",
   ADMIN: "admin",
 };
 
@@ -22,10 +21,10 @@ const authorize = (requiredRole) => {
 
       const userRole = req.user.role;
 
-      // Define role hierarchy: admin > manager > user
+      // Define role hierarchy: admin  > user
       const roleHierarchy = {
-        admin: 3,
-        manager: 2,
+        admin: 2,
+      
         user: 1,
       };
 
@@ -69,12 +68,12 @@ const requireUser = (req, res, next) => {
 };
 
 const requireAdmin = authorize(ROLES.ADMIN);
-const requireManager = authorize(ROLES.MANAGER);
+
 
 module.exports = {
   ROLES,
   authorize,
   requireUser,
   requireAdmin,
-  requireManager,
+ 
 };

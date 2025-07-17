@@ -139,9 +139,7 @@ export const TimerWidget = ({ onTimerUpdate, activeTimer, onRefresh }) => {
               <div className="text-sm text-gray-500">
                 {activeTimer.activity?.name || "Unknown Activity"}
               </div>
-              <div className="text-sm text-gray-600 mt-1">
-                {activeTimer.taskName}
-              </div>
+            
               {activeTimer.workProject?.customer?.name && (
                 <div className="text-xs text-gray-500">
                   Client: {activeTimer.workProject.customer.name}

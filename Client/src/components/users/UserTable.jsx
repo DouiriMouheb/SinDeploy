@@ -19,25 +19,12 @@ import { ProfilePicture } from "../common/ProfilePicture";
 const getRoleColor = (role) => {
   const colors = {
     admin: "bg-red-100 text-red-800 border-red-200",
-    manager: "bg-blue-100 text-blue-800 border-blue-200",
     user: "bg-green-100 text-green-800 border-green-200",
   };
   return colors[role] || "bg-gray-100 text-gray-800 border-gray-200";
 };
 
-const getDepartmentColor = (department) => {
-  const colors = {
-    IT: "bg-purple-100 text-purple-800",
-    HR: "bg-pink-100 text-pink-800",
-    Finance: "bg-yellow-100 text-yellow-800",
-    Operations: "bg-blue-100 text-blue-800",
-    Marketing: "bg-green-100 text-green-800",
-    Sales: "bg-orange-100 text-orange-800",
-    Legal: "bg-indigo-100 text-indigo-800",
-    Executive: "bg-gray-100 text-gray-800",
-  };
-  return colors[department] || "bg-gray-100 text-gray-800";
-};
+
 
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";
@@ -68,11 +55,9 @@ const formatDate = (dateString) => {
 export const UserTable = ({
   users = [],
   onView,
-  onChangeRole,
-  canEdit = () => false,
-  canDelete = false,
+  
   userRole = "user",
-  userDepartment = "",
+  
   loading = false,
 }) => {
   const { user: currentUser } = useAuth();
@@ -81,8 +66,7 @@ export const UserTable = ({
 
   const canViewUser = (targetUser) => {
     return (
-      userRole === "admin" ||
-      (userRole === "manager" && targetUser.department === userDepartment) ||
+      userRole === "admin"  ||
       targetUser.id === currentUser.id ||
       targetUser._id === currentUser.id
     );
@@ -138,14 +122,9 @@ export const UserTable = ({
                 Role
               </th>
               <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Department
-              </th>
-              <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
-              <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Last Login
-              </th>
+
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
@@ -218,16 +197,7 @@ export const UserTable = ({
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <span
-                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getDepartmentColor(
-                                  user.department
-                                )}`}
-                              >
-                                <Building2 className="h-3 w-3 mr-1" />
-                                {user.department}
-                              </span>
-                            </div>
+                          
                           </div>
                         </div>
                       </div>
@@ -245,17 +215,7 @@ export const UserTable = ({
                       </span>
                     </td>
 
-                    {/* Department - Hidden on mobile */}
-                    <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getDepartmentColor(
-                          user.department
-                        )}`}
-                      >
-                        <Building2 className="h-3 w-3 mr-1" />
-                        {user.department}
-                      </span>
-                    </td>
+                  
 
                     {/* Status - Hidden on mobile */}
                     <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
@@ -278,13 +238,7 @@ export const UserTable = ({
                       </div>
                     </td>
 
-                    {/* Last Login - Hidden on mobile */}
-                    <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {formatDate(user.lastLogin)}
-                      </div>
-                    </td>
+                 
 
                     {/* Actions */}
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -397,16 +351,7 @@ export const UserTable = ({
                       {/* Mobile expanded view */}
                       <td colSpan="2" className="lg:hidden px-6 py-4">
                         <div className="space-y-3">
-                          {/* Last Login */}
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-900 mb-1">
-                              Last Login
-                            </h4>
-                            <div className="flex items-center text-sm text-gray-700">
-                              <Calendar className="h-3 w-3 mr-1" />
-                              {formatDate(user.lastLogin)}
-                            </div>
-                          </div>
+                        
 
                           {/* Account Info */}
                           <div>

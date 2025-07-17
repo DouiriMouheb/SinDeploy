@@ -539,11 +539,7 @@ export const TimesheetCalendarView = ({
                                     </p>
                                   )}
 
-                                  {entry.taskName && (
-                                    <p className="text-xs text-gray-700 mt-1 font-medium">
-                                      Task: {entry.taskName}
-                                    </p>
-                                  )}
+                              
                                 </div>
 
                                 <div className="flex items-center space-x-1 ml-3">
@@ -891,11 +887,7 @@ export const TimesheetCalendarView = ({
                                     </span>
                                   )}
                                 </div>
-                                {entry.taskName && (
-                                  <div className="text-sm text-gray-600 truncate mb-1">
-                                    {entry.taskName}
-                                  </div>
-                                )}
+                             
                                 <div className="flex items-center space-x-4 text-xs text-gray-500">
                                   <span className="flex items-center">
                                     <Clock className="h-3 w-3 mr-1" />

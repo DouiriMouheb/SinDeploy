@@ -1,6 +1,6 @@
 // routes/auth.js
 const express = require("express");
-const { User, DailyLoginTracker } = require("../models");
+const { User } = require("../models");
 const { authenticate } = require("../middleware/auth");
 const { validate, schemas } = require("../middleware/validation");
 const { catchAsync } = require("../middleware/errorHandler");
@@ -54,8 +54,7 @@ router.post(
     // Generate tokens
     const { accessToken, refreshToken } = user.generateTokens();
 
-    // Update last login
-    await user.update({ lastLogin: new Date() });
+   
 
     logger.info("User registered successfully", {
       userId: user.id,
@@ -150,25 +149,16 @@ router.post(
     // Generate tokens
     const { accessToken, refreshToken } = user.generateTokens();
 
-    // Update last login
-    const loginTime = new Date();
-    await user.update({ lastLogin: loginTime });
+  
 
-    // Track first daily login
-    const { isFirstLogin, tracker } = await DailyLoginTracker.trackFirstLogin(
-      user.id,
-      loginTime,
-      req.ip || req.connection.remoteAddress,
-      req.get("User-Agent"),
-      req.body.location || null // Optional location from client
-    );
+ 
 
     logger.info("User logged in successfully", {
       userId: user.id,
       email: user.email,
       ip: req.ip,
-      isFirstLoginToday: isFirstLogin,
-      dailyTrackerId: tracker.id,
+     
+    
     });
 
     res.json({
@@ -183,11 +173,7 @@ router.post(
           isActive: user.isActive,
         },
         tokens: { accessToken, refreshToken },
-        dailyLogin: {
-          isFirstLoginToday: isFirstLogin,
-          firstLoginTime: tracker.firstLoginTime,
-          loginDate: tracker.loginDate,
-        },
+     
       },
     });
   })

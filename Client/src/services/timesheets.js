@@ -160,7 +160,7 @@ export const timesheetService = {
     }
   },
 
-  // Get time entries for specific user (admin/manager only) (from legacy timesheet.js)
+  // Get time entries for specific user (admin only) (from legacy timesheet.js)
   async getUserTimeEntriesById(userId, filters = {}) {
     try {
       const params = new URLSearchParams();

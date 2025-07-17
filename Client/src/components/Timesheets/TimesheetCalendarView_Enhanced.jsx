@@ -720,7 +720,7 @@ export const TimesheetCalendarView = ({
                   entry.activityId
                     ? "• " + getActivityName(entry.activityId)
                     : ""
-                } ${entry.taskName || ""}`}
+                } ${entry.description || ""}`}
                 onClick={(e) => handleEntryClick(entry, e)}
               >
                 {isShort ? (
@@ -733,11 +733,7 @@ export const TimesheetCalendarView = ({
                         • {getActivityName(entry.activityId)}
                       </span>
                     )}
-                    {entry.taskName && (
-                      <span className="text-xs text-slate-600 truncate mr-1">
-                        {entry.taskName}
-                      </span>
-                    )}
+             
                     <span className="flex items-center text-slate-500">
                       <Clock className="h-3 w-3 mr-1" />
                       {entry._start.toLocaleTimeString("en-GB", {
@@ -767,11 +763,7 @@ export const TimesheetCalendarView = ({
                         </span>
                       )}
                     </div>
-                    {entry.taskName && (
-                      <div className="text-xs text-slate-600 truncate mb-0.5">
-                        {entry.taskName}
-                      </div>
-                    )}
+                 
                     <div className="flex items-center space-x-2 text-xs text-slate-500">
                       <span className="flex items-center">
                         <Clock className="h-3 w-3 mr-1" />

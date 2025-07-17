@@ -14,7 +14,7 @@ export const UserModal = ({
   onSave,
   mode,
   userRole = "user",
-  userDepartment = "",
+  
 }) => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,10 +80,7 @@ export const UserModal = ({
       newErrors.role = "Role is required";
     }
 
-    // Department validation
-    if (!user?.department) {
-      newErrors.department = "Department is required";
-    }
+  
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -107,7 +104,7 @@ export const UserModal = ({
         name: user.name.trim(),
         email: user.email.trim().toLowerCase(),
         role: user.role,
-        department: user.department,
+       
         isActive: user.isActive !== false, // Default to true if not specified
       };
 
@@ -171,8 +168,8 @@ export const UserModal = ({
 
   // Check if current user can modify certain fields
   const canModifyRole = userRole === "admin";
-  const canModifyDepartment = userRole === "admin";
-  const canModifyStatus = userRole === "admin" || userRole === "manager";
+
+  const canModifyStatus = userRole === "admin";
 
   return (
     <Modal
@@ -296,7 +293,7 @@ export const UserModal = ({
                 } ${isReadOnly || !canModifyRole ? "bg-gray-100" : "bg-white"}`}
               >
                 <option value="user">User</option>
-                <option value="manager">Manager</option>
+               
                 <option value="admin">Admin</option>
               </select>
               <Shield className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
@@ -311,45 +308,7 @@ export const UserModal = ({
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Department *
-            </label>
-            <div className="relative">
-              <select
-                value={user?.department || userDepartment}
-                onChange={(e) =>
-                  handleInputChange("department", e.target.value)
-                }
-                disabled={isReadOnly || (!canModifyDepartment && !isCreating)}
-                className={`block w-full pl-10 pr-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.department ? "border-red-300" : "border-gray-300"
-                } ${
-                  isReadOnly || (!canModifyDepartment && !isCreating)
-                    ? "bg-gray-100"
-                    : "bg-white"
-                }`}
-              >
-                <option value="IT">IT</option>
-                <option value="HR">HR</option>
-                <option value="Finance">Finance</option>
-                <option value="Operations">Operations</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Sales">Sales</option>
-                <option value="Legal">Legal</option>
-                <option value="Executive">Executive</option>
-              </select>
-              <Building2 className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-            </div>
-            {errors.department && (
-              <p className="mt-1 text-sm text-red-600">{errors.department}</p>
-            )}
-            {!canModifyDepartment && !isCreating && (
-              <p className="mt-1 text-xs text-gray-500">
-                Only admins can change departments
-              </p>
-            )}
-          </div>
+         
         </div>
 
         {/* Account Status - only for editing */}
@@ -372,11 +331,7 @@ export const UserModal = ({
                 Account Active
               </span>
             </label>
-            {!canModifyStatus && (
-              <p className="mt-1 text-xs text-gray-500">
-                Only managers and admins can change account status
-              </p>
-            )}
+           
           </div>
         )}
 
@@ -395,12 +350,7 @@ export const UserModal = ({
                 <span className="text-gray-500">Last Updated:</span>
                 <p className="font-medium">{formatDateTime(user.updatedAt)}</p>
               </div>
-              <div>
-                <span className="text-gray-500">Last Login:</span>
-                <p className="font-medium">
-                  {formatDateTime(user.lastLogin) || "Never"}
-                </p>
-              </div>
+            
               <div>
                 <span className="text-gray-500">Failed Login Attempts:</span>
                 <p className="font-medium">{user.loginAttempts || 0}</p>
@@ -417,41 +367,9 @@ export const UserModal = ({
           </div>
         )}
 
-        {/* Role Permissions Info */}
-        <div className="pt-4 border-t border-gray-200">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">
-            Role Permissions
-          </h4>
-          <div className="text-xs text-gray-600 space-y-1">
-            {user?.role === "admin" && (
-              <div className="p-2 bg-red-50 rounded">
-                <strong>Admin:</strong> Full system access, can manage all
-                users, tickets, and settings
-              </div>
-            )}
-            {user?.role === "manager" && (
-              <div className="p-2 bg-blue-50 rounded">
-                <strong>Manager:</strong> Can manage users and tickets within
-                their department
-              </div>
-            )}
-            {user?.role === "user" && (
-              <div className="p-2 bg-green-50 rounded">
-                <strong>User:</strong> Can create and manage their own tickets
-              </div>
-            )}
-          </div>
-        </div>
+     
 
-        {/* Warning for sensitive operations */}
-        {isCreating && (
-          <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-            <div className="text-sm text-yellow-700">
-              <strong>Important:</strong> Make sure to copy the password before
-              saving. The user will need this to log in for the first time.
-            </div>
-          </div>
-        )}
+       
       </div>
     </Modal>
   );

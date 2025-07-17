@@ -156,10 +156,7 @@ module.exports = (sequelize, DataTypes) => {
       as: "timeEntries",
     });
 
-    User.hasMany(models.DailyLoginTracker, {
-      foreignKey: "userId",
-      as: "dailyLoginTrackers",
-    });
+  
 
     // Many-to-many relationship with Organizations
     User.belongsToMany(models.Organization, {

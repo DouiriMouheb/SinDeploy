@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }) => {
   const hasRole = (requiredRole) => {
     if (!user) return false;
 
-    const roleHierarchy = { admin: 3, manager: 2, user: 1 };
+    const roleHierarchy = { admin: 2, user: 1 };
     const userRoleLevel = roleHierarchy[user.role] || 0;
     const requiredRoleLevel = roleHierarchy[requiredRole] || 0;
 
@@ -184,7 +184,6 @@ export const AuthProvider = ({ children }) => {
     hasRole,
     isAuthenticated: !!user,
     userRole: user?.role,
-    userDepartment: user?.department,
     userName: user?.name,
   };
 

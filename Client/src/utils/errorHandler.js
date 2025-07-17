@@ -144,11 +144,7 @@ const handlePermissionError = (error) => {
       });
       break;
 
-    case "DEPARTMENT_RESTRICTED":
-      showToast.error("You can only access resources in your department.", {
-        duration: 6000,
-      });
-      break;
+  
 
     case "ROLE_REQUIRED":
       showToast.error(

@@ -7,8 +7,6 @@ import { Search, X } from "lucide-react";
 export const UserFilters = ({
   filters,
   onFilterChange,
-  userRole,
-  userDepartment,
 }) => {
   const handleInputChange = (field, value) => {
     onFilterChange({ [field]: value });

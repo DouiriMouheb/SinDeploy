@@ -266,11 +266,10 @@ export const Users = () => {
 
   // Access control
   const canCreateUser = hasRole("admin");
-  const canViewUsers = hasRole("manager");
+ 
   const canEditUser = (targetUser) => {
     return (
-      hasRole("admin") ||
-      (hasRole("manager") && targetUser.department === user.department)
+      hasRole("admin") 
     );
   };
   const canDeleteUser = hasRole("admin");
@@ -333,7 +332,7 @@ export const Users = () => {
             <p className="mt-2 text-sm text-gray-600">
               {hasRole("admin")
                 ? "Manage all users across the organization"
-                : `Manage users in the ${user.department} department`}
+                : ``}
             </p>
           </div>
 
@@ -392,7 +391,7 @@ export const Users = () => {
           filters={filters}
           onFilterChange={handleFilterChange}
           userRole={user.role}
-          userDepartment={user.department}
+          
         />
       )}
 
@@ -406,7 +405,7 @@ export const Users = () => {
           canEdit={canEditUser}
           canDelete={canDeleteUser}
           userRole={user.role}
-          userDepartment={user.department}
+        
           loading={loading}
         />
 
@@ -460,7 +459,7 @@ export const Users = () => {
         onSave={handleSave}
         mode={modalMode}
         userRole={user.role}
-        userDepartment={user.department}
+       
       />
 
       {/* FIXED: Single delete confirmation modal for table actions */}

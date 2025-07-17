@@ -8,10 +8,7 @@ export const MobileBottomNav = ({ currentPage, setCurrentPage }) => {
   const navigation = [
     { name: "TimeSheets", icon: Hourglass, page: "timesheets" },
 
-    // Manager-level access
-    ...(hasRole("manager")
-      ? [{ name: "Users", icon: Users, page: "users" }]
-      : []),
+   
 
     // Admin-only access
     ...(hasRole("admin")

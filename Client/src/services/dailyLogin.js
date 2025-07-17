@@ -2,32 +2,7 @@
 import { apiClient } from "./api";
 
 export const dailyLoginService = {
-  /**
-   * Get today's login tracker for current user
-   */
-  async getTodayTracker() {
-    try {
-      const response = await apiClient.get("/daily-login/today");
-      return response;
-    } catch (error) {
-      console.error("Error fetching today's tracker:", error);
-      throw error;
-    }
-  },
-
-  /**
-   * Get today's login tracker for a specific user (admin/manager only)
-   * @param {string} userId - User ID
-   */
-  async getUserTodayTracker(userId) {
-    try {
-      const response = await apiClient.get(`/daily-login/user/${userId}/today`);
-      return response;
-    } catch (error) {
-      console.error("Error fetching user's today tracker:", error);
-      throw error;
-    }
-  },
+ 
 
   /**
    * End the current day for the user
@@ -75,7 +50,7 @@ export const dailyLoginService = {
   },
 
   /**
-   * Get login history for a specific user (admin/manager only)
+   * Get login history for a specific user (admin only)
    * @param {string} userId - User ID
    * @param {Object} options - Query options
    */
@@ -99,7 +74,7 @@ export const dailyLoginService = {
   },
 
   /**
-   * Get team overview (admin/manager only)
+   * Get team overview (admin only)
    * @param {Object} options - Query options
    * @param {string} options.date - Specific date (YYYY-MM-DD)
    * @param {string} options.startDate - Start date filter
@@ -124,25 +99,6 @@ export const dailyLoginService = {
     }
   },
 
-  /**
-   * Update tracker notes or location
-   * @param {string} trackerId - Tracker ID
-   * @param {Object} updates - Updates to apply
-   * @param {string} updates.notes - Notes to update
-   * @param {string} updates.location - Location to update
-   */
-  async updateTracker(trackerId, updates) {
-    try {
-      const response = await apiClient.patch(
-        `/daily-login/tracker/${trackerId}`,
-        updates
-      );
-      return response;
-    } catch (error) {
-      console.error("Error updating tracker:", error);
-      throw error;
-    }
-  },
 
   /**
    * Format working hours for display

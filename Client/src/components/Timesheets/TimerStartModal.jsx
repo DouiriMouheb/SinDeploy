@@ -34,7 +34,6 @@ export const TimerStartModal = ({ isOpen, onClose, onStart }) => {
     activityId: "",
     workPlaceType: "",
     workPlaceAddress: "",
-    taskName: "",
     description: "",
   });
 
@@ -68,7 +67,7 @@ export const TimerStartModal = ({ isOpen, onClose, onStart }) => {
         activityId: "",
         workPlaceType: "",
         workPlaceAddress: "",
-        taskName: "",
+      
         description: "",
       });
       setData({
@@ -251,9 +250,7 @@ export const TimerStartModal = ({ isOpen, onClose, onStart }) => {
         if (!timerData.workPlaceType || !timerData.workPlaceAddress) {
           errors.workplace = "Please select a workplace";
         }
-        if (!timerData.taskName.trim()) {
-          errors.taskName = "Task name is required";
-        }
+   
         break;
     }
 
@@ -490,28 +487,7 @@ export const TimerStartModal = ({ isOpen, onClose, onStart }) => {
                 </div>
 
                 <div className="space-y-4 pt-4 border-t">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Task Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={timerData.taskName}
-                      onChange={(e) =>
-                        setTimerData((prev) => ({
-                          ...prev,
-                          taskName: e.target.value,
-                        }))
-                      }
-                      placeholder="Describe what you'll be working on"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    {errors.taskName && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.taskName}
-                      </p>
-                    )}
-                  </div>
+               
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -267,7 +267,7 @@ router.get(
           as: "timeEntries",
           attributes: [
             "id",
-            "taskName",
+           
             "startTime",
             "endTime",
             "description",

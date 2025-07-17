@@ -28,10 +28,7 @@ const Process = require("./Process")(sequelize, Sequelize.DataTypes);
 const Activity = require("./Activity")(sequelize, Sequelize.DataTypes);
 const Project = require("./Project")(sequelize, Sequelize.DataTypes);
 const TimeEntry = require("./TimeEntry")(sequelize, Sequelize.DataTypes);
-const DailyLoginTracker = require("./DailyLoginTracker")(
-  sequelize,
-  Sequelize.DataTypes
-);
+
 
 // Define associations
 const db = {
@@ -45,7 +42,7 @@ const db = {
   Activity,
   Project,
   TimeEntry,
-  DailyLoginTracker,
+  
 };
 
 // Set up associations
