@@ -58,23 +58,21 @@ router.get('/organizations/:code', catchAsync(async (req, res) => {
  */
 router.get('/organizations/:code/clients', catchAsync(async (req, res) => {
   const { code } = req.params;
-  const { search } = req.query;
-  
+  const { search, page = 1, limit = 10 } = req.query;
+
   logger.info('Fetching external clients', {
     organizationCode: code,
     userId: req.user.id,
-    searchTerm: search
+    searchTerm: search,
+    page: parseInt(page),
+    limit: parseInt(limit)
   });
 
-  let result;
-  
-  if (search && search.trim()) {
-    // Search clients
-    result = await externalClientsService.searchClients(code, search.trim());
-  } else {
-    // Get all clients
-    result = await externalClientsService.getClientsForOrganization(code);
-  }
+  const result = await externalClientsService.getClientsForOrganization(code, {
+    page: parseInt(page),
+    limit: parseInt(limit),
+    search: search || ''
+  });
 
   if (!result.success) {
     return res.status(400).json({
@@ -84,12 +82,15 @@ router.get('/organizations/:code/clients', catchAsync(async (req, res) => {
     });
   }
 
+  const totalItems = result.data.pagination.totalItems;
+  const message = search ?
+    `Found ${totalItems} clients matching "${search}"` :
+    `Retrieved ${totalItems} clients`;
+
   res.json({
     success: true,
     data: result.data,
-    message: search ? 
-      `Found ${result.data.totalCount} clients matching "${search}"` : 
-      `Retrieved ${result.data.totalCount} clients`
+    message: message
   });
 }));
 

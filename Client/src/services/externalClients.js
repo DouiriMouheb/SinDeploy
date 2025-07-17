@@ -30,17 +30,20 @@ export const externalClientsService = {
     }
   },
 
-  // Get all clients for a specific organization
-  async getClientsForOrganization(organizationCode, searchTerm = "") {
+  // Get all clients for a specific organization with pagination
+  async getClientsForOrganization(organizationCode, options = {}) {
     try {
+      const { page = 1, limit = 10, search = "" } = options;
       const params = new URLSearchParams();
-      if (searchTerm && searchTerm.trim()) {
-        params.append("search", searchTerm.trim());
+
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
+
+      if (search && search.trim()) {
+        params.append("search", search.trim());
       }
 
-      const endpoint = `/external-clients/organizations/${organizationCode}/clients${
-        params.toString() ? `?${params.toString()}` : ""
-      }`;
+      const endpoint = `/external-clients/organizations/${organizationCode}/clients?${params.toString()}`;
 
       const response = await apiClient.get(endpoint);
       return {

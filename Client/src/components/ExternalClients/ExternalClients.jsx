@@ -1,6 +1,6 @@
 // Client/src/components/ExternalClients/ExternalClients.jsx - External Sinergia Clients Component
 import React, { useState, useEffect } from "react";
-import { Building2, Users, Search, RefreshCw, AlertCircle } from "lucide-react";
+import { Building2, Users, Search, RefreshCw, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { externalClientsService } from "../../services/externalClients";
 import { showToast } from "../../utils/toast";
 
@@ -12,6 +12,14 @@ export const ExternalClients = () => {
   const [loadingOrganizations, setLoadingOrganizations] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [stats, setStats] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 10,
+    hasNextPage: false,
+    hasPreviousPage: false
+  });
 
   // Load organizations on component mount
   useEffect(() => {
@@ -41,18 +49,30 @@ export const ExternalClients = () => {
     }
   };
 
-  const loadClients = async () => {
+  const loadClients = async (page = 1) => {
     if (!selectedOrganization) return;
 
     try {
       setLoading(true);
       const response = await externalClientsService.getClientsForOrganization(
         selectedOrganization,
-        searchTerm
+        {
+          page: page,
+          limit: 10,
+          search: searchTerm
+        }
       );
-      
+
       setClients(response.data.clients || []);
-      
+      setPagination(response.data.pagination || {
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 10,
+        hasNextPage: false,
+        hasPreviousPage: false
+      });
+
       if (response.message) {
         showToast.success(response.message);
       }
@@ -63,6 +83,14 @@ export const ExternalClients = () => {
       console.error("Error loading clients:", error);
       showToast.error("Failed to load clients from external API");
       setClients([]);
+      setPagination({
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 10,
+        hasNextPage: false,
+        hasPreviousPage: false
+      });
     } finally {
       setLoading(false);
     }
@@ -89,13 +117,19 @@ export const ExternalClients = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (selectedOrganization) {
-      loadClients();
+      loadClients(1); // Reset to first page when searching
     }
   };
 
   const handleRefresh = () => {
     if (selectedOrganization) {
-      loadClients();
+      loadClients(pagination.currentPage);
+    }
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      loadClients(newPage);
     }
   };
 
@@ -195,6 +229,16 @@ export const ExternalClients = () => {
                 </div>
               </div>
             )}
+
+            {pagination.totalItems > 0 && (
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <span>
+                  Showing {((pagination.currentPage - 1) * pagination.itemsPerPage) + 1} to{" "}
+                  {Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} of{" "}
+                  {pagination.totalItems} results
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -221,32 +265,93 @@ export const ExternalClients = () => {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Company Name (Ragsoc)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {clients.map((client) => (
-                    <tr key={client.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {client.id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {client.ragsoc || 'N/A'}
-                      </td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ID
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Company Name (Ragsoc)
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {clients.map((client) => (
+                      <tr key={client.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {client.id}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {client.ragsoc || 'N/A'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination Controls */}
+              {pagination.totalPages > 1 && (
+                <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => handlePageChange(pagination.currentPage - 1)}
+                      disabled={!pagination.hasPreviousPage || loading}
+                      className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span>Previous</span>
+                    </button>
+
+                    <div className="flex items-center space-x-1">
+                      {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (pagination.totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (pagination.currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                          pageNum = pagination.totalPages - 4 + i;
+                        } else {
+                          pageNum = pagination.currentPage - 2 + i;
+                        }
+
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => handlePageChange(pageNum)}
+                            disabled={loading}
+                            className={`px-3 py-1 border rounded-md text-sm font-medium ${
+                              pageNum === pagination.currentPage
+                                ? "bg-blue-600 text-white border-blue-600"
+                                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      onClick={() => handlePageChange(pagination.currentPage + 1)}
+                      disabled={!pagination.hasNextPage || loading}
+                      className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <div className="text-sm text-gray-600">
+                    Page {pagination.currentPage} of {pagination.totalPages}
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

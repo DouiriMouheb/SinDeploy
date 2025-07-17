@@ -28,9 +28,10 @@ class ExternalClientsService {
   }
 
   /**
-   * Get all clients for a specific organization
+   * Get all clients for a specific organization with pagination
    */
-  async getClientsForOrganization(organizationCode) {
+  async getClientsForOrganization(organizationCode, options = {}) {
+    const { page = 1, limit = 10, search = '' } = options;
     try {
       // Validate organization code
       const organization = this.getOrganizationByCode(organizationCode);
@@ -49,17 +50,75 @@ class ExternalClientsService {
         method: 'GET'
       });
 
-      logger.info('Successfully fetched clients', {
+      logger.info('Raw API response received', {
         organizationCode,
-        clientCount: Array.isArray(response) ? response.length : 'unknown'
+        responseType: typeof response,
+        hasData: !!response?.data,
+        isArray: Array.isArray(response?.data)
+      });
+
+      // Handle the API response structure: { success: true, data: [...], message: "" }
+      let clients = [];
+      if (response && response.success && Array.isArray(response.data)) {
+        clients = response.data;
+      } else if (Array.isArray(response)) {
+        // Fallback if response is directly an array
+        clients = response;
+      } else {
+        logger.warn('Unexpected API response structure', {
+          organizationCode,
+          responseStructure: {
+            success: response?.success,
+            dataType: typeof response?.data,
+            isValid: response?.isValid
+          }
+        });
+        // Set empty array as fallback
+        clients = [];
+      }
+
+      // Apply search filter if provided
+      let filteredClients = clients;
+      if (search && search.trim()) {
+        const searchLower = search.toLowerCase();
+        filteredClients = clients.filter(client => {
+          return (
+            (client.ragsoc && client.ragsoc.toLowerCase().includes(searchLower)) ||
+            (client.id && client.id.toString().includes(search.trim()))
+          );
+        });
+      }
+
+      // Apply pagination
+      const totalCount = filteredClients.length;
+      const totalPages = Math.ceil(totalCount / limit);
+      const offset = (page - 1) * limit;
+      const paginatedClients = filteredClients.slice(offset, offset + limit);
+
+      logger.info('Successfully processed clients with pagination', {
+        organizationCode,
+        totalClients: clients.length,
+        filteredCount: filteredClients.length,
+        page,
+        limit,
+        totalPages,
+        searchTerm: search
       });
 
       return {
         success: true,
         data: {
           organization: organization,
-          clients: response,
-          totalCount: Array.isArray(response) ? response.length : 0
+          clients: paginatedClients,
+          pagination: {
+            currentPage: parseInt(page),
+            totalPages: totalPages,
+            totalItems: totalCount,
+            itemsPerPage: parseInt(limit),
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1
+          },
+          searchTerm: search || null
         }
       };
 
@@ -81,55 +140,7 @@ class ExternalClientsService {
     }
   }
 
-  /**
-   * Search clients by name or other criteria
-   */
-  async searchClients(organizationCode, searchTerm) {
-    try {
-      const result = await this.getClientsForOrganization(organizationCode);
-      
-      if (!result.success) {
-        return result;
-      }
 
-      // Filter clients based on search term
-      const filteredClients = result.data.clients.filter(client => {
-        const searchLower = searchTerm.toLowerCase();
-        return (
-          (client.name && client.name.toLowerCase().includes(searchLower)) ||
-          (client.code && client.code.toLowerCase().includes(searchLower)) ||
-          (client.email && client.email.toLowerCase().includes(searchLower))
-        );
-      });
-
-      return {
-        success: true,
-        data: {
-          ...result.data,
-          clients: filteredClients,
-          totalCount: filteredClients.length,
-          searchTerm
-        }
-      };
-
-    } catch (error) {
-      logger.error('Failed to search clients', {
-        organizationCode,
-        searchTerm,
-        error: error.message
-      });
-
-      return {
-        success: false,
-        error: {
-          code: 'SEARCH_ERROR',
-          message: `Search failed: ${error.message}`,
-          organizationCode,
-          searchTerm
-        }
-      };
-    }
-  }
 
   /**
    * Get client statistics for an organization
@@ -137,17 +148,45 @@ class ExternalClientsService {
   async getClientStats(organizationCode) {
     try {
       const result = await this.getClientsForOrganization(organizationCode);
-      
+
       if (!result.success) {
         return result;
       }
 
       const clients = result.data.clients;
+
+      // Ensure clients is an array
+      if (!Array.isArray(clients)) {
+        logger.warn('Clients data is not an array', {
+          organizationCode,
+          clientsType: typeof clients,
+          clientsValue: clients
+        });
+
+        return {
+          success: true,
+          data: {
+            organization: result.data.organization,
+            statistics: {
+              totalClients: 0,
+              activeClients: 0,
+              inactiveClients: 0,
+              clientsWithEmail: 0,
+              clientsWithPhone: 0
+            }
+          }
+        };
+      }
+
       const stats = {
         totalClients: clients.length,
-        activeClients: clients.filter(c => c.status === 'active').length,
-        inactiveClients: clients.filter(c => c.status === 'inactive').length,
-        // Add more statistics as needed based on the API response structure
+        // Based on the API response structure, let's use available fields
+        clientsWithPiva: clients.filter(c => c.piva && c.piva.trim()).length,
+        clientsWithEmail: clients.filter(c => c.emaiL_ISTITUZIONALE && c.emaiL_ISTITUZIONALE.trim()).length,
+        clientsWithPhone: clients.filter(c => c.tel && c.tel.trim()).length,
+        clientsOnly: clients.filter(c => c.flG_CLIENTE === true).length,
+        suppliersOnly: clients.filter(c => c.flG_FORNITORE === true).length,
+        prospects: clients.filter(c => c.flG_PROSPECT === true).length
       };
 
       return {
@@ -161,7 +200,8 @@ class ExternalClientsService {
     } catch (error) {
       logger.error('Failed to get client statistics', {
         organizationCode,
-        error: error.message
+        error: error.message,
+        stack: error.stack
       });
 
       return {
