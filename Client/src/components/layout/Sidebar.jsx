@@ -5,6 +5,7 @@ import {
   Hourglass,
   Building2, // For Customers
   Workflow, // For Process
+  ExternalLink, // For External Clients
   Menu, // For toggle button
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
@@ -24,6 +25,9 @@ export const Sidebar = ({
     { name: "TimeSheets", icon: Hourglass, page: "timesheets" },
 
   
+
+    // User access
+    { name: "External Clients", icon: ExternalLink, page: "external-clients" },
 
     // Admin-only access
     ...(hasRole("admin")

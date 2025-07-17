@@ -1,5 +1,5 @@
 import React from "react";
-import { Hourglass, Users, Building2, Workflow, Settings } from "lucide-react";
+import { Hourglass, Users, Building2, Workflow, Settings, ExternalLink } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 
 export const MobileBottomNav = ({ currentPage, setCurrentPage }) => {
@@ -7,8 +7,7 @@ export const MobileBottomNav = ({ currentPage, setCurrentPage }) => {
 
   const navigation = [
     { name: "TimeSheets", icon: Hourglass, page: "timesheets" },
-
-   
+    { name: "Ext. Clients", icon: ExternalLink, page: "external-clients" },
 
     // Admin-only access
     ...(hasRole("admin")

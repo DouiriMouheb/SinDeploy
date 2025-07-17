@@ -11,6 +11,7 @@ import { Users } from "./components/users/Users";
 import { Organizations } from "./components/Organization/Organizations";
 import { Customers } from "./components/Customers/Customers";
 import { Process } from "./components/Process/Process";
+import { ExternalClients } from "./components/ExternalClients/ExternalClients";
 import { Settings } from "./components/settings/Settings";
 import { toastConfig } from "./utils/toast";
 
@@ -55,6 +56,13 @@ const AppContent = () => {
         return (
           <ProtectedRoute requiredRole="admin">
             <Process />
+          </ProtectedRoute>
+        );
+
+      case "external-clients":
+        return (
+          <ProtectedRoute requiredRole="user">
+            <ExternalClients />
           </ProtectedRoute>
         );
 
