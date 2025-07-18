@@ -128,7 +128,7 @@ router.get(
     const { id } = req.params;
 
     const customers = await Customer.findAll({
-      where: { organization_id: id },
+      where: { organizationId: id },
       attributes: [
         "id",
         "name",
@@ -246,7 +246,7 @@ router.delete(
 
     // Check if organization has customers
     const customerCount = await Customer.count({
-      where: { organization_id: id },
+      where: { organizationId: id },
     });
 
     if (customerCount > 0) {

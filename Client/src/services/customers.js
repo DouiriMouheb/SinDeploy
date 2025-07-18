@@ -31,10 +31,7 @@ export const customerService = {
       const response = await apiClient.get(
         `/organizations/${organizationId}/customers`
       );
-      return {
-        success: true,
-        data: response.data,
-      };
+      return response.data.customers || response.data || [];
     } catch (error) {
       console.error("Error fetching customers by organization:", error);
       throw error;

@@ -140,7 +140,7 @@ class SyncService {
 
     // Create new local organization
     const localOrg = await Organization.create({
-      name: `${externalOrg.externalName} (Synced)`,
+      name: externalOrg.externalName,
       address: `External Organization - Code: ${externalOrg.externalCode}`,
       workLocation: 'External API'
     });
@@ -237,7 +237,7 @@ class SyncService {
       const customerData = {
         name: clientData.ragsoc || `Client ${clientData.id}`,
         organizationId: localOrg.id,
-        description: `Synced from external API - ID: ${clientData.id}`,
+        description: clientData.deS_NOTE || null,
         contactEmail: clientData.emaiL_ISTITUZIONALE || clientData.emaiL_AMMINISTRATIVA || null,
         contactPhone: clientData.tel || null,
         address: this.buildFullAddress(clientData),

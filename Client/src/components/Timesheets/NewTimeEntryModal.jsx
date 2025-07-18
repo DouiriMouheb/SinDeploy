@@ -193,16 +193,12 @@ export const NewTimeEntryModal = ({
   const loadCustomers = async (organizationId) => {
     setLoading((prev) => ({ ...prev, customers: true }));
     try {
-      const result = await customerService.getCustomers({ organizationId });
-      if (result.success) {
-        const customers = result.data?.customers || result.data || [];
-        setData((prev) => ({ ...prev, customers }));
-      } else {
-        showToast.error("Failed to load customers");
-      }
+      const customers = await customerService.getCustomersByOrganization(organizationId);
+      setData((prev) => ({ ...prev, customers }));
     } catch (error) {
       console.error("Error loading customers:", error);
       showToast.error("Failed to load customers");
+      setData((prev) => ({ ...prev, customers: [] }));
     } finally {
       setLoading((prev) => ({ ...prev, customers: false }));
     }
