@@ -1,6 +1,6 @@
 import React from "react";
 import { Hourglass, Users, Building2, Workflow, Settings, ExternalLink } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "react-oidc-context";
 
 export const MobileBottomNav = ({ currentPage, setCurrentPage }) => {
   const { hasRole } = useAuth();

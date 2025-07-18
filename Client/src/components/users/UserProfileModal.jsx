@@ -5,7 +5,7 @@ import { Input } from "../common/Input";
 import { Button } from "../common/Button";
 import { ProfilePictureUpload } from "../common/ProfilePictureUpload";
 import { User, Mail, Shield, Building2, Key, Save } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "react-oidc-context";
 import { userService } from "../../services/users";
 import { showToast } from "../../utils/toast";
 import { handleApiError, reportError } from "../../utils/errorHandler";

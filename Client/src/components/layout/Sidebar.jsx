@@ -8,7 +8,7 @@ import {
   ExternalLink, // For External Clients
   Menu, // For toggle button
 } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "react-oidc-context";
 import { ProfilePicture } from "../common/ProfilePicture";
 
 

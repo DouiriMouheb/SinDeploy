@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
-import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { useAuth } from "./hooks/useAuth";
+import { useAuth } from "react-oidc-context";
 import { Layout } from "./components/layout/Layout";
-import { LoginPage } from "./components/auth/LoginPage";
+import { LoginPage } from "./components/auth/LoginPageNew";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { SignInCallback, SignOutCallback } from "./components/auth/OIDCCallback";
+import { OIDCTestPage } from "./components/auth/OIDCTestPage";
+import { ConfigDebug } from "./components/auth/ConfigDebug";
 import { TimeSheetList } from "./components/Timesheets/TimeSheetList";
 import { Users } from "./components/users/Users";
 import { Organizations } from "./components/Organization/Organizations";
@@ -17,14 +19,30 @@ import { toastConfig } from "./utils/toast";
 
 const AppContent = () => {
   const [currentPage, setCurrentPage] = useState("timesheets"); // Default to Timesheet page
-  const { user, isInitialized } = useAuth();
+  const auth = useAuth();
+  const { isLoading, isAuthenticated } = auth;
+
+  // Handle OIDC callback routes
+  const currentPath = window.location.pathname;
+  if (currentPath === '/signin-oidc') {
+    return <SignInCallback />;
+  }
+  if (currentPath === '/signout-oidc') {
+    return <SignOutCallback />;
+  }
+  if (currentPath === '/oidc-test') {
+    return <OIDCTestPage />;
+  }
+  if (currentPath === '/config-debug') {
+    return <ConfigDebug />;
+  }
 
   // Reset to default page when user logs out
   useEffect(() => {
-    if (!user && isInitialized) {
+    if (!isAuthenticated) {
       setCurrentPage("timesheets");
     }
-  }, [user, isInitialized]);
+  }, [isAuthenticated]);
 
   const renderPage = () => {
     switch (currentPage) {
@@ -79,7 +97,7 @@ const AppContent = () => {
   };
 
   // Show minimal loading only during initialization
-  if (!isInitialized) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
@@ -91,7 +109,7 @@ const AppContent = () => {
   }
 
   // Show login page if not authenticated
-  if (!user) {
+  if (!isAuthenticated) {
     return <LoginPage />;
   }
 
@@ -109,9 +127,7 @@ const App = () => {
   return (
     <>
       <ThemeProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
+        <AppContent />
       </ThemeProvider>
 
       {/* Toast container - positioned globally */}

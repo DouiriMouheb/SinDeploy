@@ -9,7 +9,7 @@ import {
   Users,
   Briefcase,
 } from "lucide-react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "react-oidc-context";
 import { Button } from "../common/Button";
 import { ConfirmationModal } from "../common/ConfirmationModal";
 import { OrganizationTable } from "./OrganizationTable";

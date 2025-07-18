@@ -1,6 +1,7 @@
-// src/contexts/AuthContext.jsx - Key fixes for better API integration
+// src/contexts/AuthContext.jsx - Enhanced Dual Auth (JWT + OIDC) Context
 import React, { createContext, useState, useEffect } from "react";
 import { apiClient } from "../services/api";
+import { useCognitoOIDC } from "../services/cognitoOIDC";
 import { showToast } from "../utils/toast";
 
 export const AuthContext = createContext();
@@ -11,40 +12,28 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // Dual Auth State
+  const [authMethod, setAuthMethod] = useState('oidc'); // 'jwt' or 'oidc'
+  const [availableAuthMethods] = useState(['jwt', 'oidc']);
+
+  // OIDC Auth Hook
+  const oidcAuth = useCognitoOIDC();
+
   useEffect(() => {
     initializeAuth();
   }, []);
 
   const initializeAuth = async () => {
     try {
-      // Check if we have tokens and user data in sessionStorage
-      const savedUser = sessionStorage.getItem("user");
-      const accessToken = sessionStorage.getItem("accessToken");
+      // Check for saved auth method preference
+      const savedAuthMethod = sessionStorage.getItem("authMethod") || 'oidc';
+      setAuthMethod(savedAuthMethod);
 
-      if (savedUser && accessToken) {
-        try {
-          // Parse the saved user data first for immediate UI update
-          const parsedUser = JSON.parse(savedUser);
-          setUser(parsedUser);
-
-          // Then validate the token in the background
-          const currentUser = await apiClient.getCurrentUser();
-
-          // Update with fresh data from server if different
-          if (JSON.stringify(currentUser) !== JSON.stringify(parsedUser)) {
-            setUser(currentUser);
-            sessionStorage.setItem("user", JSON.stringify(currentUser));
-          }
-        } catch (error) {
-          // Token might be expired or invalid, clear stored data
-          console.error("Failed to validate stored token:", error);
-          clearAuthData();
-
-          // Only show session expired if it was actually an auth error
-          if (apiClient.isAuthError(error)) {
-            showToast.auth.sessionExpired();
-          }
-        }
+      // Try to restore session based on auth method
+      if (savedAuthMethod === 'oidc') {
+        await initializeOIDCAuth();
+      } else {
+        await initializeJWTAuth();
       }
     } catch (error) {
       console.error("Auth initialization error:", error);
@@ -54,21 +43,74 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const initializeJWTAuth = async () => {
+    // Check if we have tokens and user data in sessionStorage
+    const savedUser = sessionStorage.getItem("user");
+    const accessToken = sessionStorage.getItem("accessToken");
+
+    if (savedUser && accessToken) {
+      try {
+        // Parse the saved user data first for immediate UI update
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+
+        // Then validate the token in the background
+        const currentUser = await apiClient.getCurrentUser();
+
+        // Update with fresh data from server if different
+        if (JSON.stringify(currentUser) !== JSON.stringify(parsedUser)) {
+          setUser(currentUser);
+          sessionStorage.setItem("user", JSON.stringify(currentUser));
+        }
+      } catch (error) {
+        // Token might be expired or invalid, clear stored data
+        console.error("Failed to validate stored JWT token:", error);
+        clearAuthData();
+
+        // Only show session expired if it was actually an auth error
+        if (apiClient.isAuthError(error)) {
+          showToast.auth.sessionExpired();
+        }
+      }
+    }
+  };
+
+  const initializeOIDCAuth = async () => {
+    try {
+      // OIDC initialization is handled by the AuthProvider in main.jsx
+      // We just need to sync the state when OIDC auth is ready
+      if (oidcAuth.isAuthenticated && oidcAuth.user) {
+        setUser(oidcAuth.user);
+        console.log('✅ Restored OIDC session:', oidcAuth.user.email);
+      }
+    } catch (error) {
+      console.log('ℹ️ No existing OIDC session found');
+      clearAuthData();
+    }
+  };
+
   const clearAuthData = () => {
     setUser(null);
     setError(null);
     apiClient.clearTokens();
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, method = authMethod) => {
     try {
       setLoading(true);
       setError(null);
 
-      const result = await apiClient.login(email, password);
+      let result;
+      if (method === 'oidc') {
+        result = await loginWithOIDC();
+      } else {
+        result = await loginWithJWT(email, password);
+      }
 
       if (result.success) {
         setUser(result.data.user);
+        setAuthMethod(method);
+        sessionStorage.setItem("authMethod", method);
         return { success: true, data: result.data };
       } else {
         throw result.error || new Error("Login failed");
@@ -82,16 +124,44 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithJWT = async (email, password) => {
+    const result = await apiClient.login(email, password);
+    return result;
+  };
+
+  const loginWithOIDC = async () => {
+    const result = await oidcAuth.signIn();
+    return result;
+  };
+
   const logout = async () => {
     try {
       setLoading(true);
-      await apiClient.logout();
+
+      // Logout from the appropriate service
+      if (authMethod === 'oidc') {
+        await oidcAuth.signOut();
+      } else {
+        await apiClient.logout();
+      }
+
       showToast.auth.logoutSuccess();
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
       clearAuthData();
       setLoading(false);
+    }
+  };
+
+  // Note: User signup is not available - accounts must be created by administrators
+
+  // Method to switch auth methods
+  const switchAuthMethod = (newMethod) => {
+    if (availableAuthMethods.includes(newMethod)) {
+      setAuthMethod(newMethod);
+      sessionStorage.setItem("authMethod", newMethod);
+      console.log(`🔄 Switched to ${newMethod} authentication`);
     }
   };
 
@@ -172,19 +242,37 @@ export const AuthProvider = ({ children }) => {
     error,
     isInitialized,
 
+    // Multi Auth State
+    authMethod,
+    availableAuthMethods,
+
     // Actions
     login,
     logout,
     changePassword,
     refreshUser,
     clearError,
-    updateUserData, // NEW: Add this helper
+    updateUserData,
+
+    // Auth Method Switching
+    switchAuthMethod,
+
+    // Auth Method Specific Actions
+    loginWithJWT,
+    loginWithOIDC,
+
+    // OIDC Auth Object (for advanced usage)
+    oidcAuth,
 
     // Helpers
     hasRole,
     isAuthenticated: !!user,
     userRole: user?.role,
     userName: user?.name,
+
+    // Auth Method Helpers
+    isJWTAuth: authMethod === 'jwt',
+    isOIDCAuth: authMethod === 'oidc',
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
