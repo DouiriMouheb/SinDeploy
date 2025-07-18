@@ -1,7 +1,8 @@
 // Client/src/components/ExternalClients/ExternalClients.jsx - External Sinergia Clients Component
 import React, { useState, useEffect } from "react";
-import { Building2, Users, Search, RefreshCw, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Building2, Users, Search, RefreshCw, AlertCircle, ChevronLeft, ChevronRight, Download, Database } from "lucide-react";
 import { externalClientsService } from "../../services/externalClients";
+import { syncService } from "../../services/sync";
 import { showToast } from "../../utils/toast";
 
 export const ExternalClients = () => {
@@ -12,6 +13,8 @@ export const ExternalClients = () => {
   const [loadingOrganizations, setLoadingOrganizations] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [stats, setStats] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -133,6 +136,44 @@ export const ExternalClients = () => {
     }
   };
 
+  const handleSyncOrganization = async () => {
+    if (!selectedOrganization) {
+      showToast.error("Please select an organization first");
+      return;
+    }
+
+    try {
+      setSyncing(true);
+      setSyncStatus("Initializing sync...");
+
+      // Initialize external organizations first
+      await syncService.initialize();
+      setSyncStatus("Syncing organization data...");
+
+      // Sync the selected organization
+      const result = await syncService.syncOrganization(selectedOrganization);
+
+      if (result.success) {
+        showToast.success(result.message);
+        setSyncStatus(`Sync completed: ${result.data.synced} clients synced, ${result.data.updated} updated`);
+
+        // Refresh the client list to show any changes
+        loadClients(1);
+      } else {
+        showToast.error("Sync failed");
+        setSyncStatus("Sync failed");
+      }
+    } catch (error) {
+      console.error("Sync error:", error);
+      showToast.error("Failed to sync organization data");
+      setSyncStatus("Sync failed");
+    } finally {
+      setSyncing(false);
+      // Clear status after 5 seconds
+      setTimeout(() => setSyncStatus(null), 5000);
+    }
+  };
+
   const selectedOrgData = organizations.find(org => org.code === selectedOrganization);
 
   return (
@@ -174,24 +215,46 @@ export const ExternalClients = () => {
           </div>
 
           {selectedOrganization && (
-            <button
-              onClick={handleRefresh}
-              disabled={loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleRefresh}
+                disabled={loading || syncing}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
+              </button>
+
+              <button
+                onClick={handleSyncOrganization}
+                disabled={loading || syncing}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              >
+                <Database className={`h-4 w-4 ${syncing ? 'animate-pulse' : ''}`} />
+                <span>{syncing ? 'Syncing...' : 'Sync to DB'}</span>
+              </button>
+            </div>
           )}
         </div>
 
         {selectedOrgData && (
           <div className="mt-4 p-4 bg-blue-50 rounded-md">
-            <div className="flex items-center space-x-2">
-              <Building2 className="h-5 w-5 text-blue-600" />
-              <span className="font-medium text-blue-900">
-                Selected: {selectedOrgData.name} (Code: {selectedOrgData.code})
-              </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Building2 className="h-5 w-5 text-blue-600" />
+                <span className="font-medium text-blue-900">
+                  Selected: {selectedOrgData.name} (Code: {selectedOrgData.code})
+                </span>
+              </div>
+
+              {syncStatus && (
+                <div className="flex items-center space-x-2 text-sm">
+                  {syncing && <RefreshCw className="h-4 w-4 animate-spin text-green-600" />}
+                  <span className={syncing ? "text-green-700" : "text-gray-700"}>
+                    {syncStatus}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         )}

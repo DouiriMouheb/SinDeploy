@@ -28,6 +28,8 @@ const Process = require("./Process")(sequelize, Sequelize.DataTypes);
 const Activity = require("./Activity")(sequelize, Sequelize.DataTypes);
 const Project = require("./Project")(sequelize, Sequelize.DataTypes);
 const TimeEntry = require("./TimeEntry")(sequelize, Sequelize.DataTypes);
+const ExternalOrganization = require("./ExternalOrganization")(sequelize, Sequelize.DataTypes);
+const ExternalClient = require("./ExternalClient")(sequelize, Sequelize.DataTypes);
 
 
 // Define associations
@@ -42,7 +44,8 @@ const db = {
   Activity,
   Project,
   TimeEntry,
-  
+  ExternalOrganization,
+  ExternalClient,
 };
 
 // Set up associations

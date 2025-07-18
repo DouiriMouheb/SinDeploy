@@ -38,6 +38,7 @@ const customerRoutes = require("./routes/customers");
 const projectRoutes = require("./routes/projects");
 const dailyLoginRoutes = require("./routes/dailyLogin");
 const externalClientsRoutes = require("./routes/externalClients");
+const syncRoutes = require("./routes/sync");
 
 const app = express();
 
@@ -267,6 +268,9 @@ try {
 
   app.use("/api/external-clients", externalClientsRoutes);
   console.log('External clients routes registered successfully');
+
+  app.use("/api/sync", syncRoutes);
+  console.log('Sync routes registered successfully');
 
 } catch (error) {
   console.error('Error registering routes:', error);
